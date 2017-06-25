@@ -12,7 +12,10 @@ let lockHelper = require(_base + 'lib/lockHelper');
 
 
 function isNeedStatic (url) {
-    if(url.substring(url.length - 5) === '.html') {
+    if(
+        url.substring(url.length - 5) === '.html' &&
+        url.indexOf('.php') === -1
+    ) {
         return true;
     }
 

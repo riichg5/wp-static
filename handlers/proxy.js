@@ -7,6 +7,7 @@ let proxy = new httpProxy.createProxyServer();
 let proxyDomain = _config.get('proxyDomain');
 let pExists = _util.promisify(fs.exists);
 let originalHostname = _config.get('originalHostname');
+let htmlPath = _config.get('htmlPath');
 
 function getPath () {
 
@@ -30,13 +31,14 @@ function handler() {
         let requestUrl = request.url;
         let requestUrlObj = url.parse(requestUrl);
         let pathname = requestUrlObj.pathname;
-        let localFilePath = _config.get('htmlPath') + pathname;
+        let localFilePath = htmlPath + pathname;
 
         // console.log('request url: ' + requestUrl);
         // console.log('request header: ' + require('util').inspect(request.headers));
 
         //直接返回
         let isFileExist = await pExists(localFilePath);
+        console.log(`isFileExist: ${isFileExist}`);
         if(isNeedStatic(requestUrl) && isFileExist) {
             console.log(`${localFilePath} is exist, start readFile.`);
             fs.readFile(localFilePath, 'utf8', (error, data) => {
@@ -76,13 +78,14 @@ function handler() {
             res.end = async function () {
                 let requestUrlObj = url.parse(req.url);
                 let pathname = requestUrlObj.pathname;
-                let localFilePath = _config.get('htmlPath') + pathname;
+                let localFilePath = htmlPath + pathname;
 
                 //只有200才缓存
                 if(isNeedStatic(req.url) && proxyRes.statusCode === 200) {
                     delete proxyRes.headers.connection;
+                    delete proxyRes.headers['content-encoding'];
 
-                    let fileInfo ={
+                    let fileInfo = {
                         headers: proxyRes.headers,
                         html: content.join('')
                     };

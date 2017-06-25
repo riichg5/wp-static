@@ -50,7 +50,7 @@ function handler() {
                     response.setHeader(key, responseInfo.headers[key]);
                 }
 
-                response.send(responseInfo.html);
+                response.end(responseInfo.html);
             });
             return;
         }
@@ -81,6 +81,8 @@ function handler() {
                 //只有200才缓存
                 if(isProxyRequest(req.url) &&  proxyRes.statusCode === 200) {
                     console.log("response end.");
+                    delete proxyRes.headers.connection;
+
                     let fileInfo ={
                         headers: proxyRes.headers,
                         html: content.join('')

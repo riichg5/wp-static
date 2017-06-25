@@ -77,9 +77,10 @@ function handler() {
                 let pathname = requestUrlObj.pathname;
                 let localFilePath = _config.get('htmlPath') + pathname;
 
-                if(isProxyRequest(req.url)) {
+                //只有200才缓存
+                if(isProxyRequest(req.url) &&  proxyRes.statusCode === 200) {
                     console.log("response end.");
-                    let fileInfo = {
+                    let fileInfo ={
                         headers: proxyRes.headers,
                         html: content.join('')
                     };

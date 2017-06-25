@@ -78,7 +78,7 @@ function handler() {
             let _write = res.write;
             let _end = res.end;
 
-            res.end = async function () {
+            res.end = async function (data) {
                 let requestUrlObj = url.parse(req.url);
                 let pathname = requestUrlObj.pathname;
                 let localFilePath = htmlPath + pathname;
@@ -121,14 +121,17 @@ function handler() {
                     }
                 }
 
-                _end.apply(res, arguments);
+                _end.call(res, data);
+                _end = null;
             };
 
             res.write = function (data) {
                 if(isNeedStatic(req.url)) {
                     content.push(data.toString());
                 }
+
                 _write.call(res, data);
+                _write = null;
             };
         });
 

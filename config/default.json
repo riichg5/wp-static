@@ -5,5 +5,5 @@
     },
     "port": 3002,
     "proxyDomain": "http://www.360zhijia.com",
-    "htmlPath": "/Users/libo/ubey/wp-static/htmls"
+    "htmlPath": "/mnt/data/www/static-htmls"
 }

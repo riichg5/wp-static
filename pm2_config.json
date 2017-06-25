@@ -1,15 +1,15 @@
 {
-    "name": "cuit",
+    "name": "wp-static",
     "script": "./server.js",
     "kill_timeout" : 8000,
     "args": [],
-    "instances": 1,
-    "exec_mode": "fork",
-    "merge_logs"       : true,
-    "run_as_user"      : "riich",
-    "error_file": "/var/log/cuit.log",
-    "out_file": "/var/log/cuit.log",
+    "instances": 2,
+    "exec_mode": "cluster",
+    "merge_logs": true,
+    "run_as_user": "riich",
+    "error_file": "/var/log/wp-static/error.log",
+    "out_file": "/var/log/wp-static/out.log",
     "env": {
-        "NODE_ENV": "test"
+        "NODE_ENV": "production"
     }
 }

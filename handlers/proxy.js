@@ -101,7 +101,7 @@ function handler() {
             };
 
             res.write = function (data) {
-                if(isNeedStatic()(req.url)) {
+                if(isNeedStatic(req.url)) {
                     content.push(data.toString());
                 }
                 _write.call(res, data);

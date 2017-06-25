@@ -55,7 +55,7 @@ function onProxyRes (proxyRes, req, res) {
                 pExists(localFilePath)
             ]);
 
-            console.log(`isLock: ${isLock}, isExist: ${isExist}`);
+            // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
             if(isLock === true && !isExist) {
                 console.log(`${localFilePath} is locked. and file is not exist.`);
                 let fileInfo = {
@@ -79,7 +79,7 @@ function onProxyRes (proxyRes, req, res) {
             }
         }
 
-        console.log(`res.end count:`, count);
+        // console.log(`res.end count:`, count);
         _end.call(res, data);
     };
 
@@ -108,7 +108,7 @@ function handler() {
         console.log(`isFileExist: ${isFileExist}`);
 
         if(isNeedStatic(requestUrl) && isFileExist) {
-            console.log(`${localFilePath} is exist, start readFile.`);
+            // console.log(`${localFilePath} is exist, start readFile.`);
             fs.readFile(localFilePath, 'utf8', (error, data) => {
                 if(error) {
                     response.status(500).send('error');

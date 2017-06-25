@@ -5,6 +5,6 @@
     },
     "port": 3002,
     "originalHostname": "www.360zhijia.com",
-    "proxyDomain": "http://www.360zhijia.com",
+    "proxyDomain": "http://localhost:8080",
     "htmlPath": "/mnt/data/www/static-htmls"
 }

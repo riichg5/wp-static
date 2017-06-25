@@ -11,7 +11,16 @@ let htmlPath = _config.get('htmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
 
 
-function isNeedStatic (url) {
+function isNeedStatic (req) {
+    let url = req.url;
+    let isMobile = req.useragent.isMobile;
+
+    //手机不走静态
+    if(isMobile) {
+        // console.log(`is mobile: ${isMobile}`);
+        return false;
+    }
+
     if(
         url.substring(url.length - 5) === '.html' &&
         url.indexOf('.php') === -1
@@ -43,7 +52,7 @@ function onProxyRes (proxyRes, req, res) {
         ++count;
 
         //只有200才缓存
-        if(isNeedStatic(req.url) && proxyRes.statusCode === 200) {
+        if(isNeedStatic(req) && proxyRes.statusCode === 200) {
             delete proxyRes.headers.connection;
             delete proxyRes.headers['content-encoding'];
 
@@ -84,7 +93,7 @@ function onProxyRes (proxyRes, req, res) {
     };
 
     res.write = function (data) {
-        if(isNeedStatic(req.url)) {
+        if(isNeedStatic(req)) {
             content.push(data.toString());
         }
 
@@ -107,7 +116,7 @@ function handler() {
 
         console.log(`isFileExist: ${isFileExist}`);
 
-        if(isNeedStatic(requestUrl) && isFileExist) {
+        if(isNeedStatic(request) && isFileExist) {
             // console.log(`${localFilePath} is exist, start readFile.`);
             fs.readFile(localFilePath, 'utf8', (error, data) => {
                 if(error) {

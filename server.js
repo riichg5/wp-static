@@ -13,6 +13,7 @@ let path = require('path');
 let http = require('http');
 var partials = require('express-partials');
 var bunyan = require('bunyan');
+let useragent = require('express-useragent');
 
 let express = require('express');
 let middleware, handlers, app;
@@ -41,6 +42,7 @@ try {
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(middleware.contextCreator());
     app.use(middleware.redisConnector);
+    app.use(useragent.express());
 
     require(_base + 'routers/')(app, middleware, handlers);
 

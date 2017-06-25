@@ -32,8 +32,8 @@ function handler() {
         let pathname = requestUrlObj.pathname;
         let localFilePath = _config.get('htmlPath') + pathname;
 
-        console.log('request url: ' + requestUrl);
-        console.log('request header: ' + require('util').inspect(request.headers));
+        // console.log('request url: ' + requestUrl);
+        // console.log('request header: ' + require('util').inspect(request.headers));
 
         //直接返回
         let isFileExist = await pExists(localFilePath);
@@ -80,7 +80,6 @@ function handler() {
 
                 //只有200才缓存
                 if(isProxyRequest(req.url) &&  proxyRes.statusCode === 200) {
-                    console.log("response end.");
                     delete proxyRes.headers.connection;
 
                     let fileInfo ={

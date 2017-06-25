@@ -12,7 +12,7 @@ function getPath () {
 
 }
 
-function isProxyRequest (url) {
+function isNeedStatic (url) {
     if(url.substring(url.length - 5) === '.html') {
         return true;
     }
@@ -37,7 +37,7 @@ function handler() {
 
         //直接返回
         let isFileExist = await pExists(localFilePath);
-        if(isProxyRequest(requestUrl) && isFileExist) {
+        if(isNeedStatic(requestUrl) && isFileExist) {
             console.log(`${localFilePath} is exist, start readFile.`);
             fs.readFile(localFilePath, 'utf8', (error, data) => {
                 if(error) {
@@ -79,7 +79,7 @@ function handler() {
                 let localFilePath = _config.get('htmlPath') + pathname;
 
                 //只有200才缓存
-                if(isProxyRequest(req.url) &&  proxyRes.statusCode === 200) {
+                if(isNeedStatic(req.url) && proxyRes.statusCode === 200) {
                     delete proxyRes.headers.connection;
 
                     let fileInfo ={
@@ -95,13 +95,13 @@ function handler() {
                             console.error(`write file error: ${error.message}, stack: ${error.stack}`);
                         }
                     });
-
-                    _end.apply(res, arguments);
                 }
+
+                _end.apply(res, arguments);
             };
 
             res.write = function (data) {
-                if(isProxyRequest(req.url)) {
+                if(isNeedStatic()(req.url)) {
                     content.push(data.toString());
                 }
                 _write.call(res, data);

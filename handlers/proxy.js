@@ -100,7 +100,7 @@ function handler() {
         let pathname = requestUrlObj.pathname;
         let localFilePath = htmlPath + pathname;
 
-        // console.log(`---------------------------------> ${requestUrl}`);
+        console.log(`---------------------------------> ${requestUrl}`);
 
         //直接返回
         let isFileExist = await pExists(localFilePath);

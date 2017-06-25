@@ -40,9 +40,10 @@ function onProxyRes (proxyRes, req, res) {
         let localFilePath = htmlPath + pathname;
         let context = req.context;
 
+        ++count;
+
         //只有200才缓存
         if(isNeedStatic(req.url) && proxyRes.statusCode === 200) {
-            ++count;
             delete proxyRes.headers.connection;
             delete proxyRes.headers['content-encoding'];
 

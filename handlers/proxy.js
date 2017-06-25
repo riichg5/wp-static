@@ -28,15 +28,20 @@ function getDirectoryPath (localFilePath) {
 }
 
 function handler() {
+
     return async function(request, response, next) {
         let requestUrl = request.url;
         let requestUrlObj = url.parse(requestUrl);
         let pathname = requestUrlObj.pathname;
         let localFilePath = htmlPath + pathname;
 
+        console.log(`---------------------------------> ${requestUrl}`);
+
         //直接返回
         let isFileExist = await pExists(localFilePath);
+
         console.log(`isFileExist: ${isFileExist}`);
+
         if(isNeedStatic(requestUrl) && isFileExist) {
             console.log(`${localFilePath} is exist, start readFile.`);
             fs.readFile(localFilePath, 'utf8', (error, data) => {

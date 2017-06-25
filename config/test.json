@@ -4,6 +4,7 @@
         "level": "trace"
     },
     "port": 3002,
+    "originalHostname": "localhost",
     "proxyDomain": "http://localhost",
     "htmlPath": "/Users/libo/ubey/wp-static/htmls"
 }

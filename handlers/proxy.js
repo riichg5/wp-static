@@ -4,8 +4,9 @@ let fs = require('fs');
 let mkdirp = require('mkdirp');
 let pMkdirp = _util.promisify(mkdirp);
 let proxy = new httpProxy.createProxyServer();
-let proxyDomainUrl = url.parse(_config.get('proxyDomain'));
+let proxyDomain = _config.get('proxyDomain');
 let pExists = _util.promisify(fs.exists);
+let originalHostname = _config.get('originalHostname');
 
 function getPath () {
 
@@ -56,10 +57,10 @@ function handler() {
 
         /************************* 透传 *************************/
         //预防直接301
-        request.headers.host = proxyDomainUrl.hostname;
+        request.headers.host = originalHostname;
 
         proxy.web(request, response, {
-            target: _config.get('proxyDomain')
+            target: proxyDomain
         }, function (e) {
             //error
             console.log('proxy error');

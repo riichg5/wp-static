@@ -4,6 +4,7 @@
         "level": "trace"
     },
     "port": 3002,
+    "originalHostname": "www.360zhijia.com",
     "proxyDomain": "http://www.360zhijia.com",
     "htmlPath": "/mnt/data/www/static-htmls"
 }

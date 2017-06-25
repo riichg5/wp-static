@@ -1,5 +1,4 @@
 let httpProxy = require('http-proxy');
-let file = require('file');
 let url = require('url');
 let fs = require('fs');
 let mkdirp = require('mkdirp');

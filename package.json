@@ -1,0 +1,44 @@
+{
+  "name": "campus-protal",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "repository": "",
+  "author": "李波 <tolibo@qq.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js | bunyan",
+    "dev": "NODE_ENV=test node server.js",
+    "test": "./node_modules/mocha/bin/mocha ./test/spec/handlers-v2/*.js"
+  },
+  "dependencies": {
+    "async": "~0.2.9",
+    "bluebird": "^2.10.2",
+    "body-parser": "^1.15.2",
+    "bunyan": "~0.10.0",
+    "config": "^1.21.0",
+    "cookie-parser": "^1.4.3",
+    "express": "~4.14.0",
+    "express-partials": "^0.3.0",
+    "http-proxy": "^1.16.2",
+    "lodash": "^4.17.4",
+    "mkdirp": "^0.5.1",
+    "moment": "2.10.6",
+    "redis": "~0.8.4",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "jshint": "~2.1.10",
+    "mocha": "^2.5.3",
+    "mockery": "~1.7.0",
+    "muk": "^0.3.1",
+    "node-mocks-http": "^1.0.4",
+    "shipit-deploy": "^2.2.0",
+    "should": "^6.0.3",
+    "supertest": "^1.2.0"
+  }
+}

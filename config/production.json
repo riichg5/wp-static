@@ -1,0 +1,15 @@
+{
+  "webAddress": "http://210.41.228.134:3001/",
+  "databases" : {
+    "default" : {
+      "host": "127.0.0.1",
+      "port": 9904,
+      "name": "campus_portal",
+      "username": "root",
+      "password": "uubey@2016"
+    }
+  },
+  "token_validate_in_day": 3650,
+  "application" : {
+  }
+}

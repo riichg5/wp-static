@@ -1,0 +1,9 @@
+{
+    "appName": "wp-static",
+    "log": {
+        "level": "trace"
+    },
+    "port": 3002,
+    "proxyDomain": "http://localhost",
+    "htmlPath": "/Users/libo/ubey/wp-static/htmls"
+}

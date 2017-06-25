@@ -1,0 +1,15 @@
+{
+    "name": "cuit",
+    "script": "./server.js",
+    "kill_timeout" : 8000,
+    "args": [],
+    "instances": 1,
+    "exec_mode": "fork",
+    "merge_logs"       : true,
+    "run_as_user"      : "riich",
+    "error_file": "/var/log/cuit.log",
+    "out_file": "/var/log/cuit.log",
+    "env": {
+        "NODE_ENV": "test"
+    }
+}

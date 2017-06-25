@@ -38,6 +38,7 @@ try {
     app = express();
     app.enable('trust proxy');
     app.set('json spaces', 2);
+    app.use(express.static(path.join(__dirname, 'public')));
     app.use(middleware.contextCreator());
     app.use(middleware.redisConnector);
 

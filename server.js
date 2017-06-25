@@ -38,6 +38,8 @@ try {
     app = express();
     app.enable('trust proxy');
     app.set('json spaces', 2);
+    app.use(middleware.contextCreator());
+    app.use(middleware.redisConnector);
 
     require(_base + 'routers/')(app, middleware, handlers);
 

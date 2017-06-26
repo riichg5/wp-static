@@ -10,7 +10,6 @@ let originalHostname = _config.get('originalHostname');
 let htmlPath = _config.get('htmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
 
-
 function isNeedStatic (req) {
     let url = req.url;
     let isMobile = req.useragent.isMobile;
@@ -36,70 +35,63 @@ function getDirectoryPath (localFilePath) {
     return localFilePath.substring(0, lastIndex);
 }
 
-function onProxyRes (proxyRes, req, res) {
-    // console.log('Response headers:', _util.inspect(proxyRes.headers, {depth: 2}));
-    let content = [];
-    let _write = res.write;
-    let _end = res.end;
-    let count = 0;
+async function onResponseEnd (req, res) {
+    let requestUrlObj = url.parse(req.url);
+    let pathname = requestUrlObj.pathname;
+    let localFilePath = htmlPath + pathname;
+    let context = req.context;
 
-    res.end = async function (data) {
-        let requestUrlObj = url.parse(req.url);
-        let pathname = requestUrlObj.pathname;
-        let localFilePath = htmlPath + pathname;
-        let context = req.context;
+    //只有200才缓存
+    // console.log(`res.statusCode: ${res.proxyRes.statusCode}`);
+    // console.log(`res.headers: ${res.proxyRes.headers}`);
+    if(isNeedStatic(req) && res.proxyRes.statusCode === 200) {
+        delete res.proxyRes.headers.connection;
+        delete res.proxyRes.headers['content-encoding'];
 
-        ++count;
+        let [isLock, isExist] = await Promise.all([
+            lockHelper.pLock({
+                context: context,
+                name: localFilePath
+            }),
+            pExists(localFilePath)
+        ]);
 
-        //只有200才缓存
-        if(isNeedStatic(req) && proxyRes.statusCode === 200) {
-            delete proxyRes.headers.connection;
-            delete proxyRes.headers['content-encoding'];
+        // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
+        if(isLock === true && !isExist) {
+            // console.log(`${localFilePath} is locked. and file is not exist.`);
+            let fileInfo = {
+                headers: res.proxyRes.headers,
+                html: context.content.join('')
+            };
+            let text = JSON.stringify(fileInfo, true, 2);
+            // console.log("arguments: " + _util.inspect(arguments, {depth: 2}));
 
-            let [isLock, isExist] = await Promise.all([
-                lockHelper.pLock({
+            await pMkdirp(getDirectoryPath(localFilePath));
+            fs.writeFile(localFilePath, text, 'utf8', async function (error) {
+                if(error) {
+                    console.error(`write file error: ${error.message}, stack: ${error.stack}`);
+                }
+
+                await lockHelper.pUnlock({
                     context: context,
                     name: localFilePath
-                }),
-                pExists(localFilePath)
-            ]);
-
-            // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
-            if(isLock === true && !isExist) {
-                // console.log(`${localFilePath} is locked. and file is not exist.`);
-                let fileInfo = {
-                    headers: proxyRes.headers,
-                    html: content.join('')
-                };
-                let text = JSON.stringify(fileInfo, true, 2);
-                // console.log("arguments: " + _util.inspect(arguments, {depth: 2}));
-
-                await pMkdirp(getDirectoryPath(localFilePath));
-                fs.writeFile(localFilePath, text, 'utf8', async function (error) {
-                    if(error) {
-                        console.error(`write file error: ${error.message}, stack: ${error.stack}`);
-                    }
-
-                    await lockHelper.pUnlock({
-                        context: context,
-                        name: localFilePath
-                    });
                 });
-            }
+            });
         }
-
-        // console.log(`res.end count:`, count);
-        _end.call(res, data);
-    };
-
-    res.write = function (data) {
-        if(isNeedStatic(req)) {
-            content.push(data.toString());
-        }
-
-        _write.call(res, data);
-    };
+    }
 }
+
+async function onWrite (req, res, data) {
+    if(isNeedStatic(req)) {
+        req.context.content.push(data.toString());
+    }
+}
+
+function onProxyRes (proxyRes, req, res) {
+    res.proxyRes = proxyRes;
+}
+
+proxy.on('proxyRes', onProxyRes);
 
 function handler() {
 
@@ -108,14 +100,15 @@ function handler() {
         let requestUrlObj = url.parse(requestUrl);
         let pathname = requestUrlObj.pathname;
         let localFilePath = htmlPath + pathname;
+        let _write = response.write;
+        let _end = response.end;
 
-        // console.log(`---------------------------------> ${requestUrl}`);
+        console.log(`requset url: ${requestUrl}`);
 
         //直接返回
         let isFileExist = await pExists(localFilePath);
 
         // console.log(`isFileExist: ${isFileExist}`);
-
         if(isNeedStatic(request) && isFileExist) {
             // console.log(`${localFilePath} is exist, start readFile.`);
             fs.readFile(localFilePath, 'utf8', (error, data) => {
@@ -138,16 +131,29 @@ function handler() {
         //预防直接301
         request.headers.host = originalHostname;
 
+        response.end = function (data) {
+            // console.log(`res.end count:`, count);
+            onResponseEnd(request, response);
+            _end.call(response, data);
+        };
+
+        response.write = function (data) {
+            onWrite(request, response, data);
+            _write.call(response, data);
+        };
+
         proxy.web(request, response, {
             target: proxyDomain
         }, function (e) {
             //error
             console.log('proxy error');
+            response.proxyRes = {
+                headers: {},
+                statusCode: 500
+            };
+            response.status(500).end('Server Error');
         });
-
-
-        proxy.on('proxyRes', onProxyRes);
-    };
+    }
 }
 
 module.exports = handler;

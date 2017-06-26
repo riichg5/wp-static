@@ -11,7 +11,9 @@ function context(defaults) {
     // Return the middleware
     return function (request, response, next) {
         if (!request.context) {
-            request.context = {};
+            request.context = {
+                content: []
+            };
             request.context.logger = console;
         }
 

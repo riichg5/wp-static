@@ -103,7 +103,7 @@ function handler() {
         let _write = response.write;
         let _end = response.end;
 
-        console.log(`requset url: ${requestUrl}`);
+        // console.log(`requset url: ${requestUrl}`);
 
         //直接返回
         let isFileExist = await pExists(localFilePath);

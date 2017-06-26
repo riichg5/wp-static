@@ -66,7 +66,7 @@ function onProxyRes (proxyRes, req, res) {
 
             // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
             if(isLock === true && !isExist) {
-                console.log(`${localFilePath} is locked. and file is not exist.`);
+                // console.log(`${localFilePath} is locked. and file is not exist.`);
                 let fileInfo = {
                     headers: proxyRes.headers,
                     html: content.join('')
@@ -109,12 +109,12 @@ function handler() {
         let pathname = requestUrlObj.pathname;
         let localFilePath = htmlPath + pathname;
 
-        console.log(`---------------------------------> ${requestUrl}`);
+        // console.log(`---------------------------------> ${requestUrl}`);
 
         //直接返回
         let isFileExist = await pExists(localFilePath);
 
-        console.log(`isFileExist: ${isFileExist}`);
+        // console.log(`isFileExist: ${isFileExist}`);
 
         if(isNeedStatic(request) && isFileExist) {
             // console.log(`${localFilePath} is exist, start readFile.`);

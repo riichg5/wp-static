@@ -3,5 +3,6 @@ node_modules/
 build/
 .idea/
 htmls/
+m-static-htmls/
 public/wp-content
 config.json

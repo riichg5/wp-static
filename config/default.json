@@ -7,6 +7,7 @@
     "originalHostname": "www.360zhijia.com",
     "proxyDomain": "http://localhost:8080",
     "htmlPath": "/mnt/data/www/static-htmls",
+    "mobileHtmlPath": "/mnt/data/www/m-static-htmls",
     "redis": {
         "port": 6379,
         "host": "localhost",

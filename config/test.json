@@ -7,6 +7,7 @@
     "originalHostname": "localhost",
     "proxyDomain": "http://localhost",
     "htmlPath": "/Users/libo/ubey/wp-static/htmls",
+    "mobileHtmlPath": "/Users/libo/ubey/wp-static/m-static-htmls",
     "redis": {
         "port": 6379,
         "host": "localhost",

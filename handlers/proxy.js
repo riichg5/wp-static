@@ -8,6 +8,7 @@ let proxyDomain = _config.get('proxyDomain');
 let pExists = _util.promisify(fs.exists);
 let originalHostname = _config.get('originalHostname');
 let htmlPath = _config.get('htmlPath');
+let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
 
 function isNeedStatic (req) {
@@ -15,10 +16,10 @@ function isNeedStatic (req) {
     let isMobile = req.useragent.isMobile;
 
     //手机不走静态
-    if(isMobile) {
+    // if(isMobile) {
         // console.log(`is mobile: ${isMobile}`);
-        return false;
-    }
+        // return false;
+    // }
 
     if(
         url.substring(url.length - 5) === '.html' &&
@@ -35,10 +36,18 @@ function getDirectoryPath (localFilePath) {
     return localFilePath.substring(0, lastIndex);
 }
 
+function getLocalFilePath (req, pathname) {
+    if(!req.useragent.isMobile) {
+        return htmlPath + pathname;
+    }
+
+    return mHtmlPath + pathname;
+}
+
 async function onResponseEnd (req, res) {
     let requestUrlObj = url.parse(req.url);
     let pathname = requestUrlObj.pathname;
-    let localFilePath = htmlPath + pathname;
+    let localFilePath = getLocalFilePath(req, pathname);
     let context = req.context;
 
     //只有200才缓存
@@ -99,7 +108,7 @@ function handler() {
         let requestUrl = request.url;
         let requestUrlObj = url.parse(requestUrl);
         let pathname = requestUrlObj.pathname;
-        let localFilePath = htmlPath + pathname;
+        let localFilePath = getLocalFilePath(request, pathname);
         let _write = response.write;
         let _end = response.end;
 

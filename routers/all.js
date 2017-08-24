@@ -1,5 +1,5 @@
 function registRouter (app, router, middleware, handlers) {
-    router.get(
+    router.all(
         '/*',
          handlers.proxy()
     );

@@ -136,7 +136,7 @@ async function proxyHandler (request, response, next) {
             if(!isUCBrowser) {
                 response.end(responseInfo.html);
             } else {
-                response.end(responseInfo.html.replace(/ad-pc ad-site/gi, ""));
+                response.end(responseInfo.html.replace(/ad-pc ad-site/gi, "aa-pc aa-site"));
             }
         });
         return;

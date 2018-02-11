@@ -1,6 +1,3 @@
-/**
- * Organo Mobile Web Service, a.k.a Pulse
- */
 
 require('./lib/init/init');
 global.SERVER_SHUT_DOWN = false;

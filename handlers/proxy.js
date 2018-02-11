@@ -13,13 +13,6 @@ let lockHelper = require(_base + 'lib/lockHelper');
 
 function isNeedStatic (req) {
     let url = req.url;
-    let isMobile = req.useragent.isMobile;
-
-    //手机不走静态
-    // if(isMobile) {
-        // console.log(`is mobile: ${isMobile}`);
-        // return false;
-    // }
 
     if(
         url.substring(url.length - 5) === '.html' &&
@@ -31,8 +24,19 @@ function isNeedStatic (req) {
     return false;
 }
 
+function isUCBrowser (req) {
+    let userAgent = req.headers['user-agent'];
+
+    return userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
+}
+
+function isNeedProxy (opts) {
+    let req = opts.req;
+    let requestUrlObj = opts.requestUrlObj;
+}
+
 function getDirectoryPath (localFilePath) {
-    let lastIndex = _.lastIndexOf(localFilePath, '\/');
+    let lastIndex = _.lastIndexOf(localFilePath, "\/");
     return localFilePath.substring(0, lastIndex);
 }
 
@@ -102,67 +106,72 @@ function onProxyRes (proxyRes, req, res) {
 
 proxy.on('proxyRes', onProxyRes);
 
-function handler() {
+async function proxyHandler (request, response, next) {
+    let requestUrl = request.url;
+    let requestUrlObj = url.parse(requestUrl);
+    let pathname = requestUrlObj.pathname;
+    let localFilePath = getLocalFilePath(request, pathname);
+    let _write = response.write;
+    let _end = response.end;
 
-    return async function(request, response, next) {
-        let requestUrl = request.url;
-        let requestUrlObj = url.parse(requestUrl);
-        let pathname = requestUrlObj.pathname;
-        let localFilePath = getLocalFilePath(request, pathname);
-        let _write = response.write;
-        let _end = response.end;
+    // console.log(`requset url: ${requestUrl}`);
 
-        // console.log(`requset url: ${requestUrl}`);
+    //直接返回
+    let isFileExist = await pExists(localFilePath);
 
-        //直接返回
-        let isFileExist = await pExists(localFilePath);
+    // console.log(`isFileExist: ${isFileExist}`);
+    if(isNeedStatic(request) && isFileExist) {
+        // console.log(`${localFilePath} is exist, start readFile.`);
+        fs.readFile(localFilePath, 'utf8', (error, data) => {
+            if(error) {
+                response.status(500).send('error');
+                return;
+            }
 
-        // console.log(`isFileExist: ${isFileExist}`);
-        if(isNeedStatic(request) && isFileExist) {
-            // console.log(`${localFilePath} is exist, start readFile.`);
-            fs.readFile(localFilePath, 'utf8', (error, data) => {
-                if(error) {
-                    response.status(500).send('error');
-                    return;
-                }
+            let responseInfo = JSON.parse(data);
+            for(let key in responseInfo.headers) {
+                response.setHeader(key, responseInfo.headers[key]);
+            }
 
-                let responseInfo = JSON.parse(data);
-                for(let key in responseInfo.headers) {
-                    response.setHeader(key, responseInfo.headers[key]);
-                }
-
+            if(!isUCBrowser) {
                 response.end(responseInfo.html);
-            });
-            return;
-        }
-
-        /************************* 透传 *************************/
-        //预防直接301
-        request.headers.host = originalHostname;
-
-        response.end = function (data) {
-            // console.log(`res.end count:`, count);
-            onResponseEnd(request, response);
-            _end.call(response, data);
-        };
-
-        response.write = function (data) {
-            onWrite(request, response, data);
-            _write.call(response, data);
-        };
-
-        proxy.web(request, response, {
-            target: proxyDomain
-        }, function (e) {
-            //error
-            console.log('proxy error');
-            response.proxyRes = {
-                headers: {},
-                statusCode: 500
-            };
-            response.status(500).end('Server Error');
+            } else {
+                response.end(responseInfo.html.replace(/ad-pc ad-site/gi, ""));
+            }
         });
+        return;
     }
+
+    /************************* 透传 *************************/
+    //预防直接301
+    request.headers.host = originalHostname;
+
+    response.end = function (data) {
+        // console.log(`res.end count:`, count);
+        onResponseEnd(request, response);
+        _end.call(response, data);
+    };
+
+    response.write = function (data) {
+        onWrite(request, response, data);
+        _write.call(response, data);
+    };
+
+    proxy.web(request, response, {
+        target: proxyDomain
+    }, function (error) {
+        //error
+        console.log('proxy error');
+        response.proxyRes = {
+            headers: {},
+            statusCode: 500
+        };
+        response.status(500).end('Server Error');
+    });
+}
+
+function handler() {
+    return proxyHandler;
 }
 
 module.exports = handler;

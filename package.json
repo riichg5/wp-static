@@ -21,7 +21,7 @@
     "device": "^0.3.8",
     "express": "https://github.com/riichg5/express-4.15.3.git",
     "express-partials": "^0.3.0",
-    "express-useragent": "^1.0.7",
+    "express-useragent": "^1.0.12",
     "http-proxy": "^1.16.2",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",

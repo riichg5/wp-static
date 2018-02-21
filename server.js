@@ -5,10 +5,7 @@ let MIDDLEWARE_LOCATION = './middleware';
 let HANDLERS_LOCATION = './handlers';
 let DEFAULT_PORT = 8080;
 
-let fs = require('fs');
 let path = require('path');
-let http = require('http');
-var partials = require('express-partials');
 var bunyan = require('bunyan');
 let useragent = require('express-useragent');
 
@@ -50,10 +47,10 @@ try {
     console.error('Failed to start the server: %s', error.stack);
 }
 
-process.once('SIGUSR2', function (sig) {
+process.once('SIGUSR2', sig => {
     console.log("start to close http server.");
     SERVER_SHUT_DOWN = true;
-    setTimeout(x => {
+    setTimeout(() => {
         // 15000ms later the process kill it self to allow a restart
         console.log("worker closed.");
         process.exit(0);

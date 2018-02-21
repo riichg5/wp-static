@@ -25,9 +25,13 @@ function isNeedStatic (req) {
 }
 
 function isUCBrowser (req) {
-    let userAgent = req.headers['user-agent'];
+    if(!_.isUndefined(req.isUCBrowser)) {
+        return req.isUCBrowser;
+    }
 
-    return userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
+    let userAgent = req.headers['user-agent'];
+    req.isUCBrowser = userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
+    return req.isUCBrowser;
 }
 
 function isNeedProxy (opts) {
@@ -41,7 +45,8 @@ function getDirectoryPath (localFilePath) {
 }
 
 function getLocalFilePath (req, pathname) {
-    if(!req.useragent.isMobile) {
+
+    if(isUCBrowser() || !req.useragent.isMobile) {
         return htmlPath + pathname;
     }
 

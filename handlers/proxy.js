@@ -112,7 +112,7 @@ function onProxyRes (proxyRes, req, res) {
 proxy.on('proxyRes', onProxyRes);
 
 async function proxyHandler (request, response, next) {
-    let requestUrl = request.url;
+    let requestUrl = request.url.trim().toLowerCase();
     let requestUrlObj = url.parse(requestUrl);
     let pathname = requestUrlObj.pathname;
     let localFilePath = getLocalFilePath(request, pathname);

@@ -4,6 +4,7 @@ global.SERVER_SHUT_DOWN = false;
 let MIDDLEWARE_LOCATION = './middleware';
 let HANDLERS_LOCATION = './handlers';
 let DEFAULT_PORT = 8080;
+let MODELS_LOCATION = './models';
 
 let path = require('path');
 var bunyan = require('bunyan');
@@ -37,6 +38,7 @@ try {
     app.use(middleware.contextCreator());
     app.use(middleware.redisConnector);
     app.use(useragent.express());
+    app.use(middleware.sequelizer(path.join(__dirname, MODELS_LOCATION), _config, _logger));
 
     require(_base + 'routers/')(app, middleware, handlers);
 

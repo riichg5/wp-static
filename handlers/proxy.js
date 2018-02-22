@@ -46,7 +46,11 @@ function getDirectoryPath (localFilePath) {
 
 function getLocalFilePath (req, pathname) {
 
-    if(isUCBrowser(req) || !req.useragent.isMobile) {
+    // if(isUCBrowser(req) || !req.useragent.isMobile) {
+    //     return htmlPath + pathname;
+    // }
+
+    if(!req.useragent.isMobile) {
         return htmlPath + pathname;
     }
 

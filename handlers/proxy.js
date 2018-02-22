@@ -50,7 +50,8 @@ function getLocalFilePath (req, pathname) {
     //     return htmlPath + pathname;
     // }
 
-    if(!req.useragent.isMobile) {
+    //UC浏览器默认为移动终端浏览器
+    if(!req.useragent.isMobile && !isUCBrowser(req)) {
         return htmlPath + pathname;
     }
 

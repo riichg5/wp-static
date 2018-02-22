@@ -42,6 +42,8 @@ module.exports = {
         ],
         "no-unused-vars": [
             "warn"
-        ]
+        ],
+        "no-duplicate-case": 2,//switch中的case标签不能重复
+        "default-case": 2//switch语句最后必须有default
     }
 };

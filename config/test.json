@@ -15,5 +15,30 @@
         "db": 0,
         "options": {
         }
+    },
+    "database" : {
+        "protocol": "tcp",
+        "host": "h.360zhijia.com",
+        "port": 50002,
+        "username": "root",
+        "password": "HickWall512@1",
+        "name": "mysql360zhijia",
+        "pool": {
+            "min" : 1,
+            "max" : 50
+        },
+        "sequelize": {
+            "dialect" : "mysql",
+            "omitNull" : false,
+            "maxConcurrentQueries" : 100,
+            "pool" : {
+                "maxConnection" : 50,
+                "max" : 50
+            },
+            "define" : {
+                "syncOnAssociation" : false,
+                "underscored" : true
+            }
+        }
     }
 }

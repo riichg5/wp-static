@@ -18,10 +18,10 @@
     },
     "database" : {
         "protocol": "tcp",
-        "host": "h.360zhijia.com",
+        "host": "localhost",
         "port": 50002,
         "username": "root",
-        "password": "HickWall512@1",
+        "password": "123456",
         "name": "mysql360zhijia",
         "pool": {
             "min" : 1,

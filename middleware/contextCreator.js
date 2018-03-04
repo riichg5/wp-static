@@ -1,3 +1,4 @@
+let allowIps = _config.get('allowIps') || {};
 
 function context(defaults) {
     if (typeof defaults === 'undefined') {
@@ -15,8 +16,14 @@ function context(defaults) {
                 content: []
             };
             request.context.logger = console;
-            request.context.remoteIp = _utils.getClientIp(request);
-            _logger.debug(`remoteIp: ${request.context.remoteIp}`);
+            let remoteIp = _utils.getClientIp(request);
+            request.context.remoteIp = remoteIp;
+            _logger.debug(`remoteIp: ${remoteIp}`);
+
+            if(!allowIps[remoteIp]) {
+                response.status(403).send('no access!');
+                return;
+            }
         }
 
         // request.context.logger.debug(`remoteIp: ${request.context.remoteIp}`);

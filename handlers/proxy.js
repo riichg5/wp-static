@@ -31,7 +31,7 @@ function isUCBrowser (req) {
     }
 
     let userAgent = req.headers['user-agent'];
-    req.isUCBrowser = userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
+    req.isUCBrowser = userAgent && userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
     return req.isUCBrowser;
 }
 

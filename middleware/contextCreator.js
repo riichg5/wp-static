@@ -15,8 +15,11 @@ function context(defaults) {
                 content: []
             };
             request.context.logger = console;
+            request.context.remoteIp = _utils.getClientIp(request);
+            _logger.debug(`remoteIp: ${request.context.remoteIp}`);
         }
 
+        // request.context.logger.debug(`remoteIp: ${request.context.remoteIp}`);
         next();
     };
 }

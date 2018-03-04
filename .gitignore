@@ -8,3 +8,4 @@ public/wp-content
 config/production.json
 config/test.json
 config.json
+package-lock.json

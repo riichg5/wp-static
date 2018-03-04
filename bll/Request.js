@@ -20,7 +20,7 @@ class Request extends Base {
 
     static getCategoryInfo (urlObj) {
 		let info = {
-			categoryName: null,
+			categoryType: null,
 			page: 1
 		};
 		let pathname = urlObj.pathname;
@@ -45,11 +45,11 @@ class Request extends Base {
 		let categoryPath = pageSplits[0];
 		//http://www.360zhijia.com/
 		if(categoryPath.replace(/\//gi, '').trim().length === 0) {
-			info.categoryName = "homePage";
+			info.categoryType = "homePage";
 		} else { //http://www.360zhijia.com/category/360_os_release/
 			let categorySplits = _.compact(categoryPath.split('/')); //["category", "360anquanke"]
 			_.pullAll(categorySplits, ['category']);
-			info.categoryName = categorySplits[0] || null;
+			info.categoryType = categorySplits[0] || null;
 		}
 
 		return info;
@@ -76,6 +76,7 @@ class Request extends Base {
 			info.needProxy = true;
 		}
 
+		return info;
 	}
 
 }

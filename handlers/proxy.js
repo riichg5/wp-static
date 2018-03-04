@@ -10,6 +10,7 @@ let originalHostname = _config.get('originalHostname');
 let htmlPath = _config.get('htmlPath');
 let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
+let BLL = require(_base + 'bll');
 
 function isNeedStatic (req) {
     let url = req.url;
@@ -32,11 +33,6 @@ function isUCBrowser (req) {
     let userAgent = req.headers['user-agent'];
     req.isUCBrowser = userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
     return req.isUCBrowser;
-}
-
-function isNeedProxy (opts) {
-    let req = opts.req;
-    let requestUrlObj = opts.requestUrlObj;
 }
 
 function getDirectoryPath (localFilePath) {
@@ -117,6 +113,7 @@ function onProxyRes (proxyRes, req, res) {
 proxy.on('proxyRes', onProxyRes);
 
 async function proxyHandler (request, response, next) {
+    let context = request.context;
     let requestUrl = request.url.trim().toLowerCase();
     let requestUrlObj = url.parse(requestUrl);
     let pathname = requestUrlObj.pathname;
@@ -151,6 +148,22 @@ async function proxyHandler (request, response, next) {
         });
         return;
     }
+
+    //先注释掉
+    // let urlInfo = BLL.Request.getInfoOfUrl({urlObj: requestUrlObj});
+
+    // if(urlInfo.needProxy === true) {
+    //     if(urlInfo.isCategory === true) {
+    //         let html = BLL.Wp360Post.getCategoryListPageHtml({
+    //             urlObj: requestUrlObj,
+    //             categoryType: urlInfo.info.categoryType,
+    //             page: urlInfo.info.page
+    //         });
+
+    //         context.logger.debug(`===========>html:\r\n ${html}`);
+    //     }
+
+    // }
 
     /************************* 透传 *************************/
     //预防直接301

@@ -9,3 +9,4 @@ config/production.json
 config/test.json
 config.json
 package-lock.json
+config/production.json

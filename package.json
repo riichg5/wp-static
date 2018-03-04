@@ -21,7 +21,7 @@
     "cookie-parser": "^1.4.3",
     "device": "^0.3.8",
     "ejs": "^2.5.7",
-    "express": "https://github.com/riichg5/express-4.15.3.git",
+    "express": "4.15.3",
     "express-partials": "^0.3.0",
     "express-useragent": "^1.0.12",
     "http-proxy": "^1.16.2",

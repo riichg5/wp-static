@@ -20,10 +20,10 @@ function context(defaults) {
             request.context.remoteIp = remoteIp;
             _logger.debug(`remoteIp: ${remoteIp}`);
 
-            if(!allowIps[remoteIp]) {
-                response.status(403).send('no access!');
-                return;
-            }
+            // if(!allowIps[remoteIp]) {
+            //     response.status(403).send('no access!');
+            //     return;
+            // }
         }
 
         // request.context.logger.debug(`remoteIp: ${request.context.remoteIp}`);

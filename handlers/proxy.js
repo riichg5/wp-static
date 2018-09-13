@@ -97,6 +97,8 @@ async function onResponseEnd (req, res) {
                 });
             });
         }
+    } else {
+        req.context = req.context ? req.context.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/") : req.context;
     }
 }
 

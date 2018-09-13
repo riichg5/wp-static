@@ -140,7 +140,7 @@ async function proxyHandler (request, response, next) {
                 response.setHeader(key, responseInfo.headers[key]);
             }
 
-            responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+            // responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
             if(!isUCBrowser) {
                 response.end(responseInfo.html);
             } else {
@@ -182,21 +182,21 @@ async function proxyHandler (request, response, next) {
         let url = request.url;
         let endsWith = url.substring(url.length - 3).toLowerCase();
 
-        if(
-            endsWith.indexOf('png') !== -1 ||
-            endsWith.indexOf('jpg') !== -1 ||
-            endsWith.indexOf('peg') !== -1 ||
-            endsWith.indexOf('gif') !== -1 ||
-            endsWith.indexOf('bmp') !== -1
-        ) {
+        // if(
+        //     endsWith.indexOf('png') !== -1 ||
+        //     endsWith.indexOf('jpg') !== -1 ||
+        //     endsWith.indexOf('peg') !== -1 ||
+        //     endsWith.indexOf('gif') !== -1 ||
+        //     endsWith.indexOf('bmp') !== -1
+        // ) {
             _write.call(response, data);
-        } else {
-            _write.call(response,
-                data.toString()
-                .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
-                .replace(/begin\/timthumb.php\?src=https:\/\/www.360zhijia.com/gi, "begin\/timthumb.php\?src=http:\/\/www.360zhijia.com")
-            );
-        }
+        // } else {
+        //     _write.call(response,
+        //         data.toString()
+        //         .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
+        //         .replace(/begin\/timthumb.php\?src=https:\/\/www.360zhijia.com/gi, "begin/timthumb.php?src=http://www.360zhijia.com")
+        //     );
+        // }
     };
 
     proxy.web(request, response, {

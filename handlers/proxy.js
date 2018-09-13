@@ -173,13 +173,12 @@ async function proxyHandler (request, response, next) {
     response.end = function (data) {
         // console.log(`res.end count:`, count);
         onResponseEnd(request, response);
-        _end.call(response, data.toString().replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/"));
-        // _end.call(response, data);
+        _end.call(response, data);
     };
 
     response.write = function (data) {
         onWrite(request, response, data);
-        _write.call(response, data);
+        _write.call(response, data.toString().replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/"));
         // _write.call(response, data);
     };
 

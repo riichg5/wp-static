@@ -191,9 +191,11 @@ async function proxyHandler (request, response, next) {
         ) {
             _write.call(response, data);
         } else {
-            _write.call(response, data.toString()
-                .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/"))
-                .replace(/begin\/timthumb.php\?src=https:\/\/www.360zhijia.com/gi, "begin/timthumb.php?src=");
+            _write.call(response,
+                data.toString()
+                .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
+                .replace(/begin\/timthumb.php\?src=https:\/\/www.360zhijia.com/gi, "begin/timthumb.php?src=")
+            );
         }
     };
 

@@ -179,20 +179,20 @@ async function proxyHandler (request, response, next) {
     response.write = function (data) {
         onWrite(request, response, data);
 
-        let url = request.url;
-        let endsWith = url.substring(url.length - 3).toLowerCase();
+        // let url = request.url;
+        // let endsWith = url.substring(url.length - 3).toLowerCase();
 
-        if(
-            endsWith.indexOf('png') !== -1 ||
-            endsWith.indexOf('jpg') !== -1 ||
-            endsWith.indexOf('peg') !== -1 ||
-            endsWith.indexOf('gif') !== -1 ||
-            endsWith.indexOf('bmp') !== -1
-        ) {
+        // if(
+        //     endsWith.indexOf('png') !== -1 ||
+        //     endsWith.indexOf('jpg') !== -1 ||
+        //     endsWith.indexOf('peg') !== -1 ||
+        //     endsWith.indexOf('gif') !== -1 ||
+        //     endsWith.indexOf('bmp') !== -1
+        // ) {
             _write.call(response, data);
-        } else {
-            _write.call(response, data.toString().replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/"));
-        }
+        // } else {
+        //     _write.call(response, data.toString().replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/"));
+        // }
     };
 
     proxy.web(request, response, {

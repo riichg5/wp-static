@@ -140,6 +140,7 @@ async function proxyHandler (request, response, next) {
                 response.setHeader(key, responseInfo.headers[key]);
             }
 
+            responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
             if(!isUCBrowser) {
                 response.end(responseInfo.html);
             } else {

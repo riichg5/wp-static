@@ -97,8 +97,6 @@ async function onResponseEnd (req, res) {
                 });
             });
         }
-    } else {
-        req.context = req.context ? req.context.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/") : req.context;
     }
 }
 
@@ -175,7 +173,8 @@ async function proxyHandler (request, response, next) {
     response.end = function (data) {
         // console.log(`res.end count:`, count);
         onResponseEnd(request, response);
-        _end.call(response, data);
+        _end.call(response, data.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/"));
+        // _end.call(response, data);
     };
 
     response.write = function (data) {

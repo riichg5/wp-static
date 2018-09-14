@@ -184,7 +184,7 @@ async function proxyHandler (request, response, next) {
         let context = request.context;
 
         _logger.debug(`==> request.url: ${request.url}`);
-        _logger.debug(`==> data: ${data}`);
+        // _logger.debug(`==> data: ${data}`);
 
 
         // if(

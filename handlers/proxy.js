@@ -181,8 +181,8 @@ async function proxyHandler (request, response, next) {
 
         // let url = request.url;
         // let endsWith = url.substring(url.length - 3).toLowerCase();
-        let context = request.context;
 
+        _logger.debug(`==> response.get('Content-Type'): ${response.get('Content-Type')}`);
         _logger.debug(`==> request.url: ${request.url}`);
         // _logger.debug(`==> data: ${data}`);
 

@@ -183,8 +183,7 @@ async function proxyHandler (request, response, next) {
         // let endsWith = url.substring(url.length - 3).toLowerCase();
         let context = request.context;
 
-        context.logger.debug(`==> response: ${response}`);
-        context.logger.debug(`==> data: ${data}`);
+        _logger.debug(`==> data: ${data}`);
 
 
         // if(

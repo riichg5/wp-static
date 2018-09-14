@@ -204,7 +204,7 @@ async function proxyHandler (request, response, next) {
         //     endsWith.indexOf('gif') !== -1 ||
         //     endsWith.indexOf('bmp') !== -1
         // ) {
-            _write.call(response, data);
+            // _write.call(response, data);
         // } else {
             // _write.call(response,
             //     data.toString()

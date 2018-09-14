@@ -182,10 +182,20 @@ async function proxyHandler (request, response, next) {
         // let url = request.url;
         // let endsWith = url.substring(url.length - 3).toLowerCase();
 
-        _logger.debug(`==> response.get('Content-Type'): ${response.get('Content-Type')}`);
-        _logger.debug(`==> request.url: ${request.url}`);
+        let contentType = response.get('Content-Type');
+
+        // _logger.debug(`==> response.get('Content-Type'): ${response.get('Content-Type')}`);
+        // _logger.debug(`==> request.url: ${request.url}`);
         // _logger.debug(`==> data: ${data}`);
 
+        if(contentType.indexOf('text/html') !== -1) {
+            _write.call(response,
+                data.toString()
+                .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
+            );
+        } else {
+            _write.call(response, data);
+        }
 
         // if(
         //     endsWith.indexOf('png') !== -1 ||

@@ -7,13 +7,17 @@ let proxy = new httpProxy.createProxyServer();
 let proxyDomain = _config.get('proxyDomain');
 let pExists = _util.promisify(fs.exists);
 let originalHostname = _config.get('originalHostname');
+let isStaticOn = _config.get('isStaticOn');
 let htmlPath = _config.get('htmlPath');
 let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
-let BLL = require(_base + 'bll');
 
 function isNeedStatic (req) {
     let url = req.url;
+
+    if(!isStaticOn) {
+        return false;
+    }
 
     if(
         url.substring(url.length - 5) === '.html' &&
@@ -196,21 +200,6 @@ async function proxyHandler (request, response, next) {
         } else {
             _write.call(response, data);
         }
-
-        // if(
-        //     endsWith.indexOf('png') !== -1 ||
-        //     endsWith.indexOf('jpg') !== -1 ||
-        //     endsWith.indexOf('peg') !== -1 ||
-        //     endsWith.indexOf('gif') !== -1 ||
-        //     endsWith.indexOf('bmp') !== -1
-        // ) {
-            // _write.call(response, data);
-        // } else {
-            // _write.call(response,
-            //     data.toString()
-            //     .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
-            // );
-        // }
     };
 
     proxy.web(request, response, {

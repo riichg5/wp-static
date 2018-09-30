@@ -19,10 +19,23 @@ function isNeedStatic (req) {
         return false;
     }
 
+    if(url.endsWith('.html') && url.indexOf('.php') === -1) {
+        return true;
+    }
+
     if(
-        url.substring(url.length - 5) === '.html' &&
-        url.indexOf('.php') === -1
+        (url.endsWith('/amp') || url.endsWith('/amp/')) && url.replace('/amp/', '').replace('/amp', '').endsWith('.html')
     ) {
+        return true;
+    }
+
+    return false;
+}
+
+function isAmpPage (req) {
+    let url = req.url;
+
+    if(url.endsWith('/amp') || url.endsWith('/amp/')) {
         return true;
     }
 
@@ -40,15 +53,18 @@ function isUCBrowser (req) {
 }
 
 function getDirectoryPath (localFilePath) {
-    let lastIndex = _.lastIndexOf(localFilePath, "\/");
+    let lastIndex = _.lastIndexOf(localFilePath, "/");
     return localFilePath.substring(0, lastIndex);
 }
 
 function getLocalFilePath (req, pathname) {
 
-    // if(isUCBrowser(req) || !req.useragent.isMobile) {
-    //     return htmlPath + pathname;
-    // }
+    if(isAmpPage(req)) {
+        pathname = pathname.replace('/amp', '');
+        pathname += '.amp';
+
+        return mHtmlPath + pathname;
+    }
 
     //UC浏览器默认为移动终端浏览器
     if(!req.useragent.isMobile && !isUCBrowser(req)) {
@@ -59,7 +75,8 @@ function getLocalFilePath (req, pathname) {
 }
 
 async function onResponseEnd (req, res) {
-    let requestUrlObj = url.parse(req.url);
+    let requestUrl = req.url.trim().toLowerCase();
+    let requestUrlObj = url.parse(requestUrl.replace(/\/amp\//gi, '/amp'));
     let pathname = requestUrlObj.pathname;
     let localFilePath = getLocalFilePath(req, pathname);
     let context = req.context;
@@ -119,7 +136,7 @@ proxy.on('proxyRes', onProxyRes);
 async function proxyHandler (request, response, next) {
     let context = request.context;
     let requestUrl = request.url.trim().toLowerCase();
-    let requestUrlObj = url.parse(requestUrl);
+    let requestUrlObj = url.parse(requestUrl.replace(/\/amp\//gi, '/amp'));
     let pathname = requestUrlObj.pathname;
     let localFilePath = getLocalFilePath(request, pathname);
     let _write = response.write;
@@ -154,22 +171,6 @@ async function proxyHandler (request, response, next) {
         return;
     }
 
-    //先注释掉
-    // let urlInfo = BLL.Request.getInfoOfUrl({urlObj: requestUrlObj});
-
-    // if(urlInfo.needProxy === true) {
-    //     if(urlInfo.isCategory === true) {
-    //         let html = BLL.Wp360Post.getCategoryListPageHtml({
-    //             urlObj: requestUrlObj,
-    //             categoryType: urlInfo.info.categoryType,
-    //             page: urlInfo.info.page
-    //         });
-
-    //         context.logger.debug(`===========>html:\r\n ${html}`);
-    //     }
-
-    // }
-
     /************************* 透传 *************************/
     //预防直接301
     request.headers.host = originalHostname;
@@ -183,14 +184,7 @@ async function proxyHandler (request, response, next) {
     response.write = function (data) {
         onWrite(request, response, data);
 
-        // let url = request.url;
-        // let endsWith = url.substring(url.length - 3).toLowerCase();
-
         let contentType = response.get('Content-Type');
-
-        // _logger.debug(`==> response.get('Content-Type'): ${response.get('Content-Type')}`);
-        // _logger.debug(`==> request.url: ${request.url}`);
-        // _logger.debug(`==> data: ${data}`);
 
         if(contentType.indexOf('text/html') !== -1) {
             _write.call(response,

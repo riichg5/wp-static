@@ -186,7 +186,7 @@ async function proxyHandler (request, response, next) {
 
         let contentType = response.get('Content-Type');
 
-        if(contentType.indexOf('text/html') !== -1) {
+        if(contentType && contentType.indexOf('text/html') !== -1) {
             _write.call(response,
                 data.toString()
                 .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")

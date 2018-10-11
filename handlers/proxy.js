@@ -200,7 +200,7 @@ async function proxyHandler (request, response, next) {
         target: proxyDomain
     }, function (error) {
         //error
-        console.log('proxy error');
+        console.log(`proxy error: ${error.message}, stack: ${error.stack}`);
         response.proxyRes = {
             headers: {},
             statusCode: 500

@@ -57,6 +57,14 @@ function getDirectoryPath (localFilePath) {
     return localFilePath.substring(0, lastIndex);
 }
 
+function isPcClient (req) {
+    let isPcClient = !req.useragent.isMobile && !isUCBrowser(req);
+
+    console.log(`is pc client: ${isPcClient}`);
+
+    return isPcClient;
+}
+
 function getLocalFilePath (req, pathname) {
 
     if(isAmpPage(req)) {
@@ -67,7 +75,8 @@ function getLocalFilePath (req, pathname) {
     }
 
     //UC浏览器默认为移动终端浏览器
-    if(!req.useragent.isMobile && !isUCBrowser(req)) {
+    // if(!req.useragent.isMobile && !isUCBrowser(req)) {
+    if(isPcClient(req)){
         return htmlPath + pathname;
     }
 
@@ -162,6 +171,21 @@ async function proxyHandler (request, response, next) {
             }
 
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+
+            //如果是PC端，投放标题上面的链接广告
+            if(isPcClient(request)) {
+                responseInfo.html = responseInfo.html.replace(`autoptimize_4038f49b0ca942d54e086868e610f7d6.css`, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
+                responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
+                    <div class="entry-header header-linkad">
+                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                            <!-- PC文章标题上部 -->
+                            <ins class="adsbygoogle" style="display:inline-block;width:728px;height:17px" data-ad-client="ca-pub-0044506972792760" data-ad-slot="5853086007"></ins>
+                        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                    </div>
+                    <header class="entry-header entry-header-notop">
+                `);
+            }
+
             if(!isUCBrowser) {
                 response.end(responseInfo.html);
             } else {

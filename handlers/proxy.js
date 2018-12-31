@@ -175,7 +175,7 @@ async function proxyHandler (request, response, next) {
             //如果是PC端，投放标题上面的链接广告
             if(isPcClient(request)) {
                 // responseInfo.html = responseInfo.html.replace(`autoptimize_4038f49b0ca942d54e086868e610f7d6.css`, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
-                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
+                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
                 responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
                     <div class="entry-header header-linkad">
                         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -186,7 +186,7 @@ async function proxyHandler (request, response, next) {
                     <header class="entry-header entry-header-notop">
                 `);
             } else { //移动端顶部文字链接广告
-                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
+                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
                 responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
                     <div class="entry-header header-linkad">
                         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>

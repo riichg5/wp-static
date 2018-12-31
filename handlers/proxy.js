@@ -190,13 +190,11 @@ async function proxyHandler (request, response, next) {
                 responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
                     <div class="entry-header header-linkad">
                         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                        <!-- 手机顶部文字链接 -->
+                        <!-- 移动顶部文字链接 -->
                         <ins class="adsbygoogle"
-                             style="display:block"
+                             style="display:inline-block;width:320px;height:17px"
                              data-ad-client="ca-pub-0044506972792760"
-                             data-ad-slot="9000395032"
-                             data-ad-format="link"
-                             data-full-width-responsive="true"></ins>
+                             data-ad-slot="1860271616"></ins>
                         <script>
                         (adsbygoogle = window.adsbygoogle || []).push({});
                         </script>

@@ -185,6 +185,24 @@ async function proxyHandler (request, response, next) {
                     </div>
                     <header class="entry-header entry-header-notop">
                 `);
+            } else { //移动端顶部文字链接广告
+                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
+                responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
+                    <div class="entry-header header-linkad">
+                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                        <!-- 手机顶部文字链接 -->
+                        <ins class="adsbygoogle"
+                             style="display:block"
+                             data-ad-client="ca-pub-0044506972792760"
+                             data-ad-slot="9000395032"
+                             data-ad-format="link"
+                             data-full-width-responsive="true"></ins>
+                        <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
+                    <header class="entry-header entry-header-notop">
+                `);
             }
 
             if(!isUCBrowser) {

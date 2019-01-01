@@ -172,8 +172,9 @@ function processScript (opts) {
     */
 
     if(!isPcClient(request)) {
-        console.log(`html=> ${html}`);
-        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\n<script>\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\n<\/script><\/div>)/i, "");
+        // console.log(`html=> ${html}`);
+        // html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\n<script>\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\n<\/script><\/div>)/i, "");
+        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i, "");
     }
 
     return html;

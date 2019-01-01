@@ -171,9 +171,9 @@ function processScript (opts) {
         </script></div>
     */
 
-    if(!isPcClient(request)) {
-        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\n<script>\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\n<\/script><\/div>)/, "");
-    }
+    // if(!isPcClient(request)) {
+        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\n<script>\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\n<\/script><\/div>)/i, "");
+    // }
 
     return html;
 }

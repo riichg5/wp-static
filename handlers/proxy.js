@@ -155,13 +155,13 @@ function ProcessAds (opts) {
     if(isPcClient(request) && headerlinkAdPC) {
         html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
         html = html.replace(`<header class="entry-header">`, `
-                        <div class="entry-header header-linkad">
-                            ${headerlinkAdPC}
-                        </div>
-                        <header class="entry-header entry-header-notop">
-                    `);
-            return html;
-        }
+            <div class="entry-header header-linkad">
+                ${headerlinkAdPC}
+            </div>
+            <header class="entry-header entry-header-notop">
+        `);
+        return html;
+    }
 
     if(!isPcClient(request) && headerlinkMobile) {
         html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);

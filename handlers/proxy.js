@@ -144,8 +144,18 @@ function processScript (opts) {
     let html = opts.html;
 
     //移除header里面的googletagmanager
+    /*
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'UA-94106519-1');
+        </script>
+    */
     html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
-    // html = html.replace(/(<script>)[\S|\s]+ca-pub-0044506972792760[\S|\s]+(<\/script>)/, "");
+    html = html.replace(/(<script>)[\S|\s]+(UA-94106519-1'\);\n<\/script>)/, "");
 
     return html;
 }

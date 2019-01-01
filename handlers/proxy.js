@@ -142,6 +142,7 @@ function onProxyRes (proxyRes, req, res) {
 
 function processScript (opts) {
     let html = opts.html;
+    let request = opts.request;
 
     //移除header里面的googletagmanager
     /*
@@ -156,6 +157,23 @@ function processScript (opts) {
     */
     html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
     html = html.replace(/(<script>)[\S|\s]+(UA-94106519-1'\);\n<\/script>)/, "");
+
+    //移除mobile文章标题banner 广告
+    /*
+        <div class="tg-m tg-site"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <!-- 手机正文���部ing -->
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:320px;height:50px"
+             data-ad-client="ca-pub-0044506972792760"
+             data-ad-slot="2018527320"></ins>
+        <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        </script></div>
+    */
+
+    if(!isPcClient(request)) {
+        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\n<script>\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\n<\/script><\/div>)/, "");
+    }
 
     return html;
 }
@@ -248,7 +266,8 @@ async function proxyHandler (request, response, next) {
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
 
             responseInfo.html = processScript({
-                html: responseInfo.html
+                html: responseInfo.html,
+                request: request
             });
 
             responseInfo.html = processAds({

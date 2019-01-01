@@ -145,7 +145,7 @@ function processScript (opts) {
 
     //移除header里面的googletagmanager
     html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
-    html = html.replace(/(<script>)[\S|\s]+ca-pub-0044506972792760[\S|\s]+(<\/script>)/, "");
+    // html = html.replace(/(<script>)[\S|\s]+ca-pub-0044506972792760[\S|\s]+(<\/script>)/, "");
 
     return html;
 }

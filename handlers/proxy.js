@@ -173,35 +173,35 @@ async function proxyHandler (request, response, next) {
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
 
             //如果是PC端，投放标题上面的链接广告
-            if(isPcClient(request)) {
-                // responseInfo.html = responseInfo.html.replace(`autoptimize_4038f49b0ca942d54e086868e610f7d6.css`, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
-                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
-                responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
-                    <div class="entry-header header-linkad">
-                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                            <!-- PC文章标题上部 -->
-                            <ins class="adsbygoogle" style="display:inline-block;width:728px;height:17px" data-ad-client="ca-pub-0044506972792760" data-ad-slot="5853086007"></ins>
-                        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                    </div>
-                    <header class="entry-header entry-header-notop">
-                `);
-            } else { //移动端顶部文字链接广告
-                responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
-                responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
-                    <div class="entry-header header-linkad">
-                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                        <!-- 移动顶部文字链接 -->
-                        <ins class="adsbygoogle"
-                             style="display:inline-block;width:320px;height:17px"
-                             data-ad-client="ca-pub-0044506972792760"
-                             data-ad-slot="1860271616"></ins>
-                        <script>
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                        </script>
-                    </div>
-                    <header class="entry-header entry-header-notop">
-                `);
-            }
+            // if(isPcClient(request)) {
+            //     // responseInfo.html = responseInfo.html.replace(`autoptimize_4038f49b0ca942d54e086868e610f7d6.css`, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
+            //     responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
+            //     responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
+            //         <div class="entry-header header-linkad">
+            //             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            //                 <!-- PC文章标题上部 -->
+            //                 <ins class="adsbygoogle" style="display:inline-block;width:728px;height:17px" data-ad-client="ca-pub-0044506972792760" data-ad-slot="5853086007"></ins>
+            //             <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            //         </div>
+            //         <header class="entry-header entry-header-notop">
+            //     `);
+            // } else { //移动端顶部文字链接广告
+            //     responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
+            //     responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
+            //         <div class="entry-header header-linkad">
+            //             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            //             <!-- 移动顶部文字链接 -->
+            //             <ins class="adsbygoogle"
+            //                  style="display:inline-block;width:320px;height:17px"
+            //                  data-ad-client="ca-pub-0044506972792760"
+            //                  data-ad-slot="1860271616"></ins>
+            //             <script>
+            //             (adsbygoogle = window.adsbygoogle || []).push({});
+            //             </script>
+            //         </div>
+            //         <header class="entry-header entry-header-notop">
+            //     `);
+            // }
 
             if(!isUCBrowser) {
                 response.end(responseInfo.html);

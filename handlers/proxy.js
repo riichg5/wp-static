@@ -142,6 +142,7 @@ function onProxyRes (proxyRes, req, res) {
 
 function ProcessAds (opts) {
     let html = opts.html;
+    let request = opts.request;
     let adsConfig = _config.get("ads");
 
     if(!adsConfig || !adsConfig.isOn) {
@@ -208,7 +209,10 @@ async function proxyHandler (request, response, next) {
             }
 
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
-            responseInfo.html = ProcessAds({html: responseInfo.html});
+            responseInfo.html = ProcessAds({
+                html: responseInfo.html,
+                request: request
+            });
 
             // //如果是PC端，投放标题上面的链接广告
             // if(isPcClient(request)) {

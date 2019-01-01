@@ -140,10 +140,12 @@ function onProxyRes (proxyRes, req, res) {
     res.proxyRes = proxyRes;
 }
 
-function ProcessAds (opts) {
+function processAds (opts) {
     let html = opts.html;
     let request = opts.request;
     let adsConfig = _config.get("ads");
+
+    console.log(`-> adsConfig: ${JSON.stringify(adsConfig)}`);
 
     if(!adsConfig || !adsConfig.isOn) {
         return html;
@@ -209,7 +211,7 @@ async function proxyHandler (request, response, next) {
             }
 
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
-            responseInfo.html = ProcessAds({
+            responseInfo.html = processAds({
                 html: responseInfo.html,
                 request: request
             });

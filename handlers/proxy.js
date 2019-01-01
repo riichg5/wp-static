@@ -140,6 +140,16 @@ function onProxyRes (proxyRes, req, res) {
     res.proxyRes = proxyRes;
 }
 
+function processScript (opts) {
+    let html = opts.html;
+
+    //移除header里面的googletagmanager
+    html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
+    html = html.replace(/(<script>)[\S|\s]+ca-pub-0044506972792760[\S|\s]+(<\/script>)/, "");
+
+    return html;
+}
+
 function processAds (opts) {
     let html = opts.html;
     let request = opts.request;
@@ -178,6 +188,20 @@ function processAds (opts) {
     return html;
 }
 
+function processHeaders (opts) {
+    let response = opts.response;
+    let responseInfo = opts.responseInfo;
+
+    let oldHeader = responseInfo.headers;
+
+    if(oldHeader) {
+        let contentType = oldHeader['content-type'];
+        if(contentType) {
+            response.setHeader('content-type', contentType);
+        }
+    }
+}
+
 proxy.on('proxyRes', onProxyRes);
 
 async function proxyHandler (request, response, next) {
@@ -205,16 +229,18 @@ async function proxyHandler (request, response, next) {
 
             //只从静态文件里面抓取content-type返回
             let responseInfo = JSON.parse(data);
-            let oldHeader = responseInfo.headers;
 
-            if(oldHeader) {
-                let contentType = oldHeader['content-type'];
-                if(contentType) {
-                    response.setHeader('content-type', contentType);
-                }
-            }
+            processHeaders({
+                response: response,
+                responseInfo: responseInfo
+            });
 
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+
+            responseInfo.html = processScript({
+                html: responseInfo.html
+            });
+
             responseInfo.html = processAds({
                 html: responseInfo.html,
                 request: request

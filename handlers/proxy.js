@@ -140,6 +140,43 @@ function onProxyRes (proxyRes, req, res) {
     res.proxyRes = proxyRes;
 }
 
+function ProcessAds (opts) {
+    let html = opts.html;
+    let adsConfig = _config.get("ads");
+
+    if(!adsConfig || !adsConfig.isOn) {
+        return html;
+    }
+
+    let headerlinkAdPC = adsConfig.headerlinkAdPC;
+    let headerlinkMobile = adsConfig.headerlinkMobile;
+
+    if(isPcClient(request) && headerlinkAdPC) {
+        html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
+        html = html.replace(`<header class="entry-header">`, `
+                        <div class="entry-header header-linkad">
+                            ${headerlinkAdPC}
+                        </div>
+                        <header class="entry-header entry-header-notop">
+                    `);
+            return html;
+        }
+
+    if(!isPcClient(request) && headerlinkMobile) {
+        html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
+        html = html.replace(`<header class="entry-header">`, `
+            <div class="entry-header header-linkad">
+            ${headerlinkMobile}
+            </div>
+            <header class="entry-header entry-header-notop">
+        `);
+
+        return html;
+    }
+
+    return html;
+}
+
 proxy.on('proxyRes', onProxyRes);
 
 async function proxyHandler (request, response, next) {
@@ -171,8 +208,9 @@ async function proxyHandler (request, response, next) {
             }
 
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+            responseInfo.html = ProcessAds({html: responseInfo.html});
 
-            //如果是PC端，投放标题上面的链接广告
+            // //如果是PC端，投放标题上面的链接广告
             // if(isPcClient(request)) {
             //     // responseInfo.html = responseInfo.html.replace(`autoptimize_4038f49b0ca942d54e086868e610f7d6.css`, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v1.css`);
             //     responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
@@ -189,15 +227,7 @@ async function proxyHandler (request, response, next) {
             //     responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
             //     responseInfo.html = responseInfo.html.replace(`<header class="entry-header">`, `
             //         <div class="entry-header header-linkad">
-            //             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            //             <!-- 移动顶部文字链接 -->
-            //             <ins class="adsbygoogle"
-            //                  style="display:inline-block;width:320px;height:17px"
-            //                  data-ad-client="ca-pub-0044506972792760"
-            //                  data-ad-slot="1860271616"></ins>
-            //             <script>
-            //             (adsbygoogle = window.adsbygoogle || []).push({});
-            //             </script>
+            //         ${}
             //         </div>
             //         <header class="entry-header entry-header-notop">
             //     `);

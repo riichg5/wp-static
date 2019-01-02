@@ -204,6 +204,7 @@ function processAds (opts) {
     // }
 
     if(!isPcClient(request) && headerlinkMobile) {
+        html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v3.css`);
         html = html.replace(`<header class="entry-header">`, `
             <div class="entry-header header-linkad">
             ${headerlinkMobile}
@@ -265,7 +266,8 @@ async function proxyHandler (request, response, next) {
             });
 
             responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
-            responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v3.css`);
+            //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
+            responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 
             responseInfo.html = processScript({
                 html: responseInfo.html,

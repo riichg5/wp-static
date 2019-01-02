@@ -155,8 +155,8 @@ function processScript (opts) {
           gtag('config', 'UA-94106519-1');
         </script>
     */
-    html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
-    html = html.replace(/(<script>)[\S|\s]+(UA-94106519-1'\);\n<\/script>)/, "");
+    // html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
+    // html = html.replace(/(<script>)[\S|\s]+(UA-94106519-1'\);\n<\/script>)/, "");
 
     //移除mobile文章标题banner 广告
     /*
@@ -173,7 +173,6 @@ function processScript (opts) {
 
     if(!isPcClient(request)) {
         // console.log(`html=> ${html}`);
-        // html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\n<script>\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\n<\/script><\/div>)/i, "");
         html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i, "");
     }
 

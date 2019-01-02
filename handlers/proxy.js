@@ -232,6 +232,32 @@ function processHeaders (opts) {
     }
 }
 
+function processHtml (opts) {
+    let request = opts.request;
+    let html = opts.html;
+
+    html = html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+    //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
+    html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
+
+    html = processScript({
+        html: html,
+        request: request
+    });
+
+    html = processAds({
+        html: html,
+        request: request
+    });
+
+    if(isUCBrowser(request)) {
+        html = html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
+    }
+
+    return html;
+}
+
+
 proxy.on('proxyRes', onProxyRes);
 
 async function proxyHandler (request, response, next) {
@@ -265,25 +291,36 @@ async function proxyHandler (request, response, next) {
                 responseInfo: responseInfo
             });
 
-            responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
-            //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
-            responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
+            // responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+            // //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
+            // responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 
-            responseInfo.html = processScript({
-                html: responseInfo.html,
-                request: request
-            });
+            // responseInfo.html = processScript({
+            //     html: responseInfo.html,
+            //     request: request
+            // });
 
-            responseInfo.html = processAds({
-                html: responseInfo.html,
-                request: request
-            });
+            // responseInfo.html = processAds({
+            //     html: responseInfo.html,
+            //     request: request
+            // });
 
-            if(!isUCBrowser) {
-                response.end(responseInfo.html);
-            } else {
-                response.end(responseInfo.html.replace(/ad-pc ad-site/gi, "aa-pc aa-site"));
-            }
+            // if(isUCBrowser(request)) {
+            //     responseInfo.html = responseInfo.html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
+            // }
+
+            responseInfo.html = processHtml({
+                request: request,
+                html: responseInfo.html
+            })
+
+            response.end(responseInfo.html);
+
+            // if(!isUCBrowser(request)) {
+            //     response.end(responseInfo.html);
+            // } else {
+            //     response.end(responseInfo.html.replace(/ad-pc ad-site/gi, "aa-pc aa-site"));
+            // }
         });
         return;
     }
@@ -304,10 +341,19 @@ async function proxyHandler (request, response, next) {
         let contentType = response.get('Content-Type');
 
         if(contentType && contentType.indexOf('text/html') !== -1) {
-            _write.call(response,
-                data.toString()
-                .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
-            );
+            let html = data.toString();
+
+            html = processHtml({
+                request: request,
+                html: html
+            });
+
+            _write.call(response, html);
+
+            // _write.call(response,
+            //     data.toString()
+            //     .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
+            // );
         } else {
             _write.call(response, data);
         }

@@ -65,6 +65,13 @@ function isPcClient (req) {
     return isPcClient;
 }
 
+function isMobileArticleRequest (req) {
+    let isMobileClient = req.useragent.isMobile || isUCBrowser(req);
+    let isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
+
+    return isMobileClient && isArticlePage;
+}
+
 function getLocalFilePath (req, pathname) {
 
     if(isAmpPage(req)) {
@@ -209,7 +216,7 @@ function processAds (opts) {
     /**
         移动端文章标题顶部广告
     */
-    if(!isPcClient(request) && articleHeaderMobile) {
+    if(isMobileArticleRequest(request) && articleHeaderMobile) {
         html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v3.css`);
         html = html.replace(`<header class="entry-header">`, `
             <div class="entry-header header-linkad">

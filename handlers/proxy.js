@@ -65,6 +65,13 @@ function isPcClient (req) {
     return isPcClient;
 }
 
+function isPcArticleRequest (req) {
+    let isPcClient = !(req.useragent.isMobile || isUCBrowser(req));
+    let isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
+
+    return isPcClient && isArticlePage;
+}
+
 function isMobileArticleRequest (req) {
     let isMobileClient = req.useragent.isMobile || isUCBrowser(req);
     let isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
@@ -147,7 +154,7 @@ function onProxyRes (proxyRes, req, res) {
     res.proxyRes = proxyRes;
 }
 
-function processScriptOnPage (opts) {
+function processOnPage (opts) {
     let html = opts.html;
     let request = opts.request;
 
@@ -183,6 +190,11 @@ function processScriptOnPage (opts) {
         // console.log(`html=> ${html}`);
         html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i, "");
     }
+
+    /**
+        去掉文章页面的social div，让下面的广告更贴近文章内容
+    */
+    html = html.replace(`<div id="social"></div>`, "");
 
     return html;
 }
@@ -253,7 +265,7 @@ function processHtml (opts) {
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 
-    html = processScriptOnPage({
+    html = processOnPage({
         html: html,
         request: request
     });

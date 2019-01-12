@@ -140,12 +140,13 @@ function onProxyRes (proxyRes, req, res) {
     res.proxyRes = proxyRes;
 }
 
-function processScript (opts) {
+function processScriptOnPage (opts) {
     let html = opts.html;
     let request = opts.request;
 
-    //移除header里面的googletagmanager
-    /*
+    /**
+        移除header里面的googletagmanager
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>
         <script>
           window.dataLayer = window.dataLayer || [];
@@ -158,8 +159,9 @@ function processScript (opts) {
     // html = html.replace(`<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94106519-1"></script>`, "");
     // html = html.replace(/(<script>)[\S|\s]+(UA-94106519-1'\);\n<\/script>)/, "");
 
-    //移除mobile文章标题banner 广告
-    /*
+    /**
+        移除mobile页面，已有的文章标题下部广告
+
         <div class="tg-m tg-site"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <!-- 手机正文���部ing -->
         <ins class="adsbygoogle"
@@ -170,7 +172,6 @@ function processScript (opts) {
         (adsbygoogle = window.adsbygoogle || []).push({});
         </script></div>
     */
-
     if(!isPcClient(request)) {
         // console.log(`html=> ${html}`);
         html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i, "");
@@ -188,26 +189,31 @@ function processAds (opts) {
         return html;
     }
 
-    let headerlinkAdPC = adsConfig.headerlinkAdPC;
-    let headerlinkMobile = adsConfig.headerlinkMobile;
+    let articleHeaderAdPC = adsConfig.articleHeaderAdPC;
+    let articleHeaderMobile = adsConfig.articleHeaderMobile;
 
-    /*暂时移除标题顶部文字链接广告*/
-    // if(isPcClient(request) && headerlinkAdPC) {
+    /**
+        PC文章标题顶部广告
+    */
+    // if(isPcClient(request) && articleHeaderAdPC) {
     //     html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v2.css`);
     //     html = html.replace(`<header class="entry-header">`, `
     //         <div class="entry-header header-linkad">
-    //             ${headerlinkAdPC}
+    //             ${articleHeaderAdPC}
     //         </div>
     //         <header class="entry-header entry-header-notop">
     //     `);
     //     return html;
     // }
 
-    if(!isPcClient(request) && headerlinkMobile) {
+    /**
+        移动端文章标题顶部广告
+    */
+    if(!isPcClient(request) && articleHeaderMobile) {
         html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v3.css`);
         html = html.replace(`<header class="entry-header">`, `
             <div class="entry-header header-linkad">
-            ${headerlinkMobile}
+            ${articleHeaderMobile}
             </div>
             <header class="entry-header entry-header-notop">
         `);
@@ -240,7 +246,7 @@ function processHtml (opts) {
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 
-    html = processScript({
+    html = processScriptOnPage({
         html: html,
         request: request
     });
@@ -291,36 +297,12 @@ async function proxyHandler (request, response, next) {
                 responseInfo: responseInfo
             });
 
-            // responseInfo.html = responseInfo.html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
-            // //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
-            // responseInfo.html = responseInfo.html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
-
-            // responseInfo.html = processScript({
-            //     html: responseInfo.html,
-            //     request: request
-            // });
-
-            // responseInfo.html = processAds({
-            //     html: responseInfo.html,
-            //     request: request
-            // });
-
-            // if(isUCBrowser(request)) {
-            //     responseInfo.html = responseInfo.html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
-            // }
-
             responseInfo.html = processHtml({
                 request: request,
                 html: responseInfo.html
-            })
+            });
 
             response.end(responseInfo.html);
-
-            // if(!isUCBrowser(request)) {
-            //     response.end(responseInfo.html);
-            // } else {
-            //     response.end(responseInfo.html.replace(/ad-pc ad-site/gi, "aa-pc aa-site"));
-            // }
         });
         return;
     }
@@ -349,11 +331,6 @@ async function proxyHandler (request, response, next) {
             });
 
             _write.call(response, html);
-
-            // _write.call(response,
-            //     data.toString()
-            //     .replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/")
-            // );
         } else {
             _write.call(response, data);
         }

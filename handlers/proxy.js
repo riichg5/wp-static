@@ -210,6 +210,7 @@ function processAds (opts) {
 
     let articleHeaderAdPC = adsConfig.articleHeaderAdPC;
     let articleHeaderMobile = adsConfig.articleHeaderMobile;
+    let articleTitleBottomPC = adsConfig.articleTitleBottomPC;
 
     /**
         PC文章标题顶部广告
@@ -238,6 +239,16 @@ function processAds (opts) {
         `);
 
         return html;
+    }
+
+    /**
+        PC顶部banner广告
+    */
+    if(isPcArticleRequest(request) && articleTitleBottomPC) {
+        html = html.replace(
+            /(<div class="tg-pc tg-site">)[\S|\s]+(1720017976"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i,
+            articleTitleBottomPC
+        );
     }
 
     return html;

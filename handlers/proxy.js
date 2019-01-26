@@ -131,7 +131,7 @@ async function onResponseEnd (req, res) {
                 解决nodejs写中文内容有乱码的问题
                 https://www.jianshu.com/p/8c04fb552c6f
             */
-            let text = "\uFEFF" + JSON.stringify(fileInfo, true, 2);
+            let text = JSON.stringify(fileInfo, true, 2);
             // console.log("arguments: " + _util.inspect(arguments, {depth: 2}));
 
             await pMkdirp(getDirectoryPath(localFilePath));

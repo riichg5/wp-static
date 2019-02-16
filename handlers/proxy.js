@@ -273,9 +273,13 @@ function processAds (opts) {
         下面是谷歌文章推荐 原生广告
     */
     if(isPcArticleRequest(request) && googleRecommendPC) {
+        // html = html.replace(
+        //     /<div id="comments"/i,
+        //     `<div class="wow fadeInUp">${googleRecommendPC}</div><div id="comments"`
+        // );
         html = html.replace(
-            /<div id="comments"/i,
-            `<div class="wow fadeInUp">${googleRecommendPC}</div><div id="comments"`
+            /<div class="wow fadeInUp"/i,
+            `<div class="wow fadeInUp">${googleRecommendPC}</div><div class="wow fadeInUp"`
         );
     }
 

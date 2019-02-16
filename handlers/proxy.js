@@ -216,6 +216,8 @@ function processAds (opts) {
     let articleHeaderAdPC = adsConfig.articleHeaderAdPC;
     let articleHeaderMobile = adsConfig.articleHeaderMobile;
     let articleTitleBottomPC = adsConfig.articleTitleBottomPC;
+    let articleRecommendMobile = adsConfig.articleRecommendMobile;  //移动文章推荐栏中间广告
+    let googleRecommendPC = adsConfig.googleRecommendPC;            //谷歌PC文章推荐原生广告
 
     /**
         PC文章标题顶部广告
@@ -243,8 +245,19 @@ function processAds (opts) {
             <header class="entry-header entry-header-notop">
         `);
 
-        return html;
+        // return html;
     }
+
+    /**
+        移动文章推荐栏中间广告
+        先阶段不适用，处理不好样式...
+    */
+    // if(isMobileArticleRequest(request) && articleRecommendMobile) {
+    //     html = html.replace(
+    //         /<aside id="random_post-2"/i,
+    //         `<div>${articleRecommendMobile}</div><aside id="random_post-2"`
+    //     );
+    // }
 
     /**
         PC顶部banner广告
@@ -253,6 +266,20 @@ function processAds (opts) {
         html = html.replace(
             /(<div class="tg-pc tg-site">)[\S|\s]+(1720017976"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i,
             articleTitleBottomPC
+        );
+    }
+
+    /*
+        下面是谷歌文章推荐 原生广告
+    */
+    if(isPcArticleRequest(request) && googleRecommendPC) {
+        // html = html.replace(
+        //     /<div id="comments"/i,
+        //     `<div class="wow fadeInUp">${googleRecommendPC}</div><div id="comments"`
+        // );
+        html = html.replace(
+            /<nav class="nav-single/i,
+            `<div class="wow fadeInUp">${googleRecommendPC}</div><nav class="nav-single"`
         );
     }
 

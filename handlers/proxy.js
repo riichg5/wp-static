@@ -216,6 +216,7 @@ function processAds (opts) {
     let articleHeaderAdPC = adsConfig.articleHeaderAdPC;
     let articleHeaderMobile = adsConfig.articleHeaderMobile;
     let articleTitleBottomPC = adsConfig.articleTitleBottomPC;
+    let articleRecommendMobile = adsConfig.articleRecommendMobile;  //移动文章推荐栏中间广告
 
     /**
         PC文章标题顶部广告
@@ -243,7 +244,17 @@ function processAds (opts) {
             <header class="entry-header entry-header-notop">
         `);
 
-        return html;
+        // return html;
+    }
+
+    /**
+        移动文章推荐栏中间广告
+    */
+    if(isMobileArticleRequest(request) && articleRecommendMobile) {
+        html = html.replace(
+            /<aside id="random_post-2"/i,
+            `<aside id="random_post-99" class="widget random_post wow fadeInUp" data-wow-delay="0.3s"><div>${articleRecommendMobile}</div><div class="clear"></div></aside><aside id="random_post-2"`
+        );
     }
 
     /**

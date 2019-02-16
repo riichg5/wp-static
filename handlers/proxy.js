@@ -249,13 +249,14 @@ function processAds (opts) {
 
     /**
         移动文章推荐栏中间广告
+        先阶段不适用，处理不好样式...
     */
-    if(isMobileArticleRequest(request) && articleRecommendMobile) {
-        html = html.replace(
-            /<aside id="random_post-2"/i,
-            `<div>${articleRecommendMobile}</div><aside id="random_post-2"`
-        );
-    }
+    // if(isMobileArticleRequest(request) && articleRecommendMobile) {
+    //     html = html.replace(
+    //         /<aside id="random_post-2"/i,
+    //         `<div>${articleRecommendMobile}</div><aside id="random_post-2"`
+    //     );
+    // }
 
     /**
         PC顶部banner广告

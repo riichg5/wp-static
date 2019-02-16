@@ -253,7 +253,7 @@ function processAds (opts) {
     if(isMobileArticleRequest(request) && articleRecommendMobile) {
         html = html.replace(
             /<aside id="random_post-2"/i,
-            `<aside id="random_post-99" class="widget random_post wow fadeInUp" data-wow-delay="0.3s"><div>${articleRecommendMobile}</div><div class="clear"></div></aside><aside id="random_post-2"`
+            `<div>${articleRecommendMobile}</div><aside id="random_post-2"`
         );
     }
 

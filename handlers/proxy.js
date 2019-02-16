@@ -278,8 +278,8 @@ function processAds (opts) {
         //     `<div class="wow fadeInUp">${googleRecommendPC}</div><div id="comments"`
         // );
         html = html.replace(
-            /<div class="wow fadeInUp"/i,
-            `<div class="wow fadeInUp">${googleRecommendPC}</div><div class="wow fadeInUp"`
+            /<nav class="nav-single/i,
+            `<div class="wow fadeInUp">${googleRecommendPC}</div><nav class="nav-single"`
         );
     }
 

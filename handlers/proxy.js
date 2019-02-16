@@ -274,8 +274,8 @@ function processAds (opts) {
     */
     if(isPcArticleRequest(request) && googleRecommendPC) {
         html = html.replace(
-            /<nav class="nav-single/i,
-            `<div class="wow fadeInUp">${googleRecommendPC}</div><nav class="nav-single`
+            /<div id="comments"/i,
+            `<div class="wow fadeInUp">${googleRecommendPC}</div><div id="comments"`
         );
     }
 

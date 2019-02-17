@@ -206,9 +206,9 @@ function processOnPage (opts) {
         去掉分页
     */
     let startTime = new Date();
-    let $html = cheerio.load(html);
-    $html.find("div[class='pagenav-clear']").remove();
-    html = $html.html();
+    let $ = cheerio.load(html);
+    $("div[class='pagenav-clear']").remove();
+    html = $.html();
     console.log(`remove div[class='pagenav-clear'], used time: ${new Date() - startTime} milliseconds.`);
 
     return html;

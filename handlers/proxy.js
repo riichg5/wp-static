@@ -11,7 +11,6 @@ let isStaticOn = _config.get('isStaticOn');
 let htmlPath = _config.get('htmlPath');
 let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
-let cheerio = require('cheerio');
 
 function isNeedStatic (req) {
     let url = req.url;
@@ -205,11 +204,7 @@ function processOnPage (opts) {
     /**
         去掉分页
     */
-    let startTime = new Date();
-    let $ = cheerio.load(html);
-    $("div[class='pagenav-clear']").remove();
-    html = $.html();
-    console.log(`remove div[class='pagenav-clear'], used time: ${new Date() - startTime} milliseconds.`);
+    html = html.replace(/(<nav class="navigation pagination")[\S|\s]+(<\/nav>)/, "");
 
     return html;
 }

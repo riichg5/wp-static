@@ -201,10 +201,13 @@ function processOnPage (opts) {
     */
     html = html.replace(`<div id="social"></div>`, "");
 
+    console.log(`----------------`);
+    console.log(html);
+    console.log(`----------------`);
     /**
         去掉分页
     */
-    html = html.replace(/(<nav class="navigation pagination")[\S|\s]+(<\/nav>)/, "");
+    html = html.replace(/(<nav class="navigation pagination")[\S|\s]+(<\/nav>)/i, "");
 
     return html;
 }

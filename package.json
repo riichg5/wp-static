@@ -16,6 +16,7 @@
     "bluebird": "^2.10.2",
     "body-parser": "^1.15.2",
     "bunyan": "~0.10.0",
+    "cheerio": "^1.0.0-rc.2",
     "cls-hooked": "^4.2.2",
     "config": "^1.21.0",
     "cookie-parser": "^1.4.3",

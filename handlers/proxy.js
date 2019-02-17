@@ -11,6 +11,7 @@ let isStaticOn = _config.get('isStaticOn');
 let htmlPath = _config.get('htmlPath');
 let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
+let cheerio = require('cheerio');
 
 function isNeedStatic (req) {
     let url = req.url;
@@ -201,6 +202,15 @@ function processOnPage (opts) {
     */
     html = html.replace(`<div id="social"></div>`, "");
 
+    /**
+        去掉分页
+    */
+    let startTime = new Date();
+    let $html = cheerio.load(html);
+    $html.find("div[class='pagenav-clear']").remove();
+    html = $html.html();
+    console.log(`remove div[class='pagenav-clear'], used time: ${new Date() - startTime} milliseconds.`);
+
     return html;
 }
 
@@ -304,6 +314,8 @@ function processHtml (opts) {
     let request = opts.request;
     let html = opts.html;
 
+    let startTime = new Date();
+
     html = html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
@@ -322,6 +334,9 @@ function processHtml (opts) {
         html = html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
     }
 
+    let endTime = new Date();
+
+    console.log(`processHtml used time: ${endTime - startTime} milliseconds.`);
     return html;
 }
 

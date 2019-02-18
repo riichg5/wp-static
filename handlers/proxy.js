@@ -322,6 +322,9 @@ function processHtml (opts) {
         html = html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
     }
 
+    //临时过滤掉乱码
+    html = html.replace(/�/gi, "");
+
     return html;
 }
 

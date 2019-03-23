@@ -13,11 +13,16 @@ let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
 
 function isNeedStatic (req) {
-    let url = req.url;
+    let url = req.url.trim().toLowerCase();
 
     if(!isStaticOn) {
         return false;
     }
+
+    // //判断首页
+    // if(isHomePage(url) === true) {
+    //     return true;
+    // }
 
     if(url.endsWith('.html') && url.indexOf('.php') === -1) {
         return true;
@@ -30,6 +35,10 @@ function isNeedStatic (req) {
     }
 
     return false;
+}
+
+function isHomePage (pureUrl) {
+    return pureUrl === '/' || pureUrl === '';
 }
 
 function isAmpPage (req) {
@@ -87,6 +96,11 @@ function getLocalFilePath (req, pathname) {
 
         return mHtmlPath + pathname;
     }
+
+    // //处理首页
+    // if(pathname === '/' && pathname === '') {
+    //     pathname = '/default.html';
+    // }
 
     //UC浏览器默认为移动终端浏览器
     // if(!req.useragent.isMobile && !isUCBrowser(req)) {
@@ -410,7 +424,7 @@ async function proxyHandler (request, response, next) {
             headers: {},
             statusCode: 500
         };
-        response.status(500).end('Server Error');
+        response.status(500).end(`Server Error! error message: ${error.message}, error stack: ${error.stack}`);
     });
 }
 

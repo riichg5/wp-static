@@ -253,20 +253,20 @@ function processAds (opts) {
     if(isMobileArticleRequest(request) && articleHeaderMobile) {
         html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v3.css`);
         //原google广告
-        html = html.replace(`<header class="entry-header">`, `
-            <div class="entry-header header-linkad">
-            ${articleHeaderMobile}
-            </div>
-            <header class="entry-header entry-header-notop">
-        `);
-
-        //西安微趣广告
         // html = html.replace(`<header class="entry-header">`, `
         //     <div class="entry-header header-linkad">
-        //         <script src='http://dee.uzyid.cn:84/?id=40060'></script>
+        //     ${articleHeaderMobile}
         //     </div>
         //     <header class="entry-header entry-header-notop">
         // `);
+
+        //西安微趣广告
+        html = html.replace(`<header class="entry-header">`, `
+            <div class="entry-header header-linkad">
+                <script src='https://xin.pozwf.cn/?id=40060'></script>
+            </div>
+            <header class="entry-header entry-header-notop">
+        `);
 
         // return html;
     }

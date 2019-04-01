@@ -260,9 +260,9 @@ function processAds (opts) {
         //     <header class="entry-header entry-header-notop">
         // `);
 
-        if(request.url.trim().toLowerCase() === '/360help/354727.html') {
-            console.log(`=>${html}`);
-        }
+        // if(request.url.trim().toLowerCase() === '/360help/354727.html') {
+        //     console.log(`=>${html}`);
+        // }
 
         //西安微趣广告
         html = html.replace(`<header class="entry-header">`, `

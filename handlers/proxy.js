@@ -260,6 +260,10 @@ function processAds (opts) {
         //     <header class="entry-header entry-header-notop">
         // `);
 
+        if(request.url === '/360help/354727.html') {
+            console.log(`==========>${html}`);
+        }
+
         //西安微趣广告
         html = html.replace(`<header class="entry-header">`, `
             <div class="entry-header header-linkad">

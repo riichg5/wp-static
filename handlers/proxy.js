@@ -253,29 +253,35 @@ function processAds (opts) {
     if(isMobileArticleRequest(request) && articleHeaderMobile) {
         html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6_v3.css`);
         //原google广告
-        // html = html.replace(`<header class="entry-header">`, `
-        //     <div class="entry-header header-linkad">
-        //     ${articleHeaderMobile}
-        //     </div>
-        //     <header class="entry-header entry-header-notop">
-        // `);
+        html = html.replace(`<header class="entry-header">`, `
+            <div class="entry-header header-linkad">
+            ${articleHeaderMobile}
+            </div>
+            <header class="entry-header entry-header-notop">
+        `);
+
+        // html = html.replace(
+        //     "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script><!-- 手机文章标题顶部 --><ins class=\"adsbygoogle\" style=\"display:block;margin:auto;width:300px;height:250px\" data-ad-client=\"ca-pub-0044506972792760\" data-ad-slot=\"2984604849\"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>",
+        //     `${articleHeaderMobile}`
+        // );
 
         // if(request.url.trim().toLowerCase() === '/360help/354727.html') {
         //     console.log(`=>${html}`);
         // }
 
         //西安微趣广告
-        html = html.replace(`<header class="entry-header">`, `
-            <div class="entry-header header-linkad">
-                <script src='https://xin.pozwf.cn/?id=40060'></script>
-            </div>
-            <header class="entry-header entry-header-notop">
-        `);
+        // html = html.replace(`<header class="entry-header">`, `
+        //     <div class="entry-header header-linkad">
+        //         <script src='https://xin.pozwf.cn/?id=40060'></script>
+        //     </div>
+        //     <header class="entry-header entry-header-notop">
+        // `);
 
-        html = html.replace(
-            "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script><!-- 手机文章标题顶部 --><ins class=\"adsbygoogle\" style=\"display:block;margin:auto;width:300px;height:250px\" data-ad-client=\"ca-pub-0044506972792760\" data-ad-slot=\"2984604849\"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>",
-            "<script src='https://xin.pozwf.cn/?id=40060'></script>"
-        );
+        // html = html.replace(
+        //     "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script><!-- 手机文章标题顶部 --><ins class=\"adsbygoogle\" style=\"display:block;margin:auto;width:300px;height:250px\" data-ad-client=\"ca-pub-0044506972792760\" data-ad-slot=\"2984604849\"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>",
+        //     "<script src='https://xin.pozwf.cn/?id=40060'></script>"
+        // );
+        // <----西安微趣广告结束----->
 
         // return html;
     }

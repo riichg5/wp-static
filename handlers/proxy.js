@@ -273,13 +273,33 @@ function processAds (opts) {
         html = html.replace(`<header class="entry-header">`, `
             <div class="entry-header header-linkad">
                 <script src='https://xin.pozwf.cn/?id=40060'></script>
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 移动顶部小横幅 -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:320px;height:100px"
+                     data-ad-client="ca-pub-0044506972792760"
+                     data-ad-slot="1344549998"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
             </div>
             <header class="entry-header entry-header-notop">
         `);
 
         html = html.replace(
             "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script><!-- 手机文章标题顶部 --><ins class=\"adsbygoogle\" style=\"display:block;margin:auto;width:300px;height:250px\" data-ad-client=\"ca-pub-0044506972792760\" data-ad-slot=\"2984604849\"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>",
-            "<script src='https://xin.pozwf.cn/?id=40060'></script>"
+            `
+                <script src='https://xin.pozwf.cn/?id=40060'></script>
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 移动顶部小横幅 -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:320px;height:100px"
+                     data-ad-client="ca-pub-0044506972792760"
+                     data-ad-slot="1344549998"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            `
         );
         // <----西安微趣广告结束----->
 

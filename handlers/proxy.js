@@ -276,7 +276,7 @@ function processAds (opts) {
                 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
                 <!-- 移动顶部小横幅 -->
                 <ins class="adsbygoogle"
-                     style="display:inline-block;width:320px;height:100px"
+                     style="display:block;margin:auto;width:320px;height:100px"
                      data-ad-client="ca-pub-0044506972792760"
                      data-ad-slot="1344549998"></ins>
                 <script>
@@ -293,7 +293,7 @@ function processAds (opts) {
                 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
                 <!-- 移动顶部小横幅 -->
                 <ins class="adsbygoogle"
-                     style="display:inline-block;width:320px;height:100px"
+                     style="display:block;margin:auto;width:320px;height:100px"
                      data-ad-client="ca-pub-0044506972792760"
                      data-ad-slot="1344549998"></ins>
                 <script>

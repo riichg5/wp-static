@@ -4,7 +4,7 @@
         "level": "trace"
     },
     "port": 3002,
-    "originalHostname": "www.360zhijia.com",
+    "originalHostname": "www.360zhijia.cn",
     "proxyDomain": "http://localhost:8080",
     "htmlPath": "/mnt/data/www/static-htmls",
     "mobileHtmlPath": "/mnt/data/www/m-static-htmls",

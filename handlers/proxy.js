@@ -365,7 +365,8 @@ function processHtml (opts) {
     let request = opts.request;
     let html = opts.html;
 
-    html = html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.com/");
+    html = html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.cn/");
+    html = html.replace(/http:\/\/www.360zhijia.cn\//gi, "https://www.360zhijia.com/");
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 

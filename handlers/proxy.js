@@ -365,6 +365,10 @@ function processHtml (opts) {
     let request = opts.request;
     let html = opts.html;
 
+    if(!isStaticOn) {
+        return html;
+    }
+
     html = html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.cn/");
     html = html.replace(/https:\/\/www.360zhijia.com\//gi, "https://www.360zhijia.cn/");
     html = html.replace(/http:\/\/www.360zhijia.cn\//gi, "https://www.360zhijia.cn/");

@@ -463,7 +463,7 @@ async function proxyHandler (request, response, next) {
                 request: request,
                 html: html
             });
-            response.set('content-length', Buffer.byteLength(html, 'utf-8'));
+
             _write.call(response, html);
         } else {
             _write.call(response, data);

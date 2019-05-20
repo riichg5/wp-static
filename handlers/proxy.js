@@ -367,6 +367,7 @@ function processHtml (opts) {
 
     if(!isStaticOn) {
         html = html.replace(/360zhijia.com/gi, "360zhijia.cn");
+        html = html.replace(/�/gi, "");
         return html;
     }
 
@@ -462,7 +463,7 @@ async function proxyHandler (request, response, next) {
                 request: request,
                 html: html
             });
-
+            response.set('content-length', Buffer.byteLength(html, 'utf-8'));
             _write.call(response, html);
         } else {
             _write.call(response, data);

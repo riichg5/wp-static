@@ -366,8 +366,6 @@ function processHtml (opts) {
     let html = opts.html;
 
     if(!isStaticOn) {
-        html = html.replace(/360zhijia.com/gi, "360zhijia.cn");
-        html = html.replace(/�/gi, "");
         return html;
     }
 

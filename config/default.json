@@ -4,7 +4,7 @@
         "level": "trace"
     },
     "port": 3002,
-    "originalHostname": "www.360zhijia.cn",
+    "originalHostname": "www.aes6.com",
     "proxyDomain": "http://localhost:8080",
     "htmlPath": "/mnt/data/www/static-htmls",
     "mobileHtmlPath": "/mnt/data/www/m-static-htmls",

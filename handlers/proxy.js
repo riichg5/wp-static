@@ -352,16 +352,17 @@ function processHeaders (opts) {
     const responseInfo = opts.responseInfo;
     const reponseHtml = opts.reponseHtml;
 
-    // let oldHeader = responseInfo.headers;
-    // if(oldHeader) {
-    //     let contentType = oldHeader['content-type'];
-    //     if(contentType) {
-    //         response.setHeader('content-type', contentType);
-    //     }
-    // }
+    let oldHeader = responseInfo.headers;
+    if(oldHeader) {
+        let contentType = oldHeader['content-type'];
+        if(contentType) {
+            response.setHeader('content-type', contentType);
+        }
+    }
     //重新计算大小
     const contentLength = Buffer.byteLength(reponseHtml, 'utf8');
-    response.setHeader('Conent-length', contentLength);
+    response.setHeader('Conent-Length', contentLength);
+    console.log(`Conent-Length: ${contentLength}`);
 }
 
 function processHtml (opts) {

@@ -1,5 +1,5 @@
-let httpProxy = require('http-proxy');
-let url = require('url');
+const httpProxy = require('http-proxy');
+const url = require('url');
 let fs = require('fs');
 let mkdirp = require('mkdirp');
 let pMkdirp = _util.promisify(mkdirp);
@@ -348,17 +348,20 @@ function processAds (opts) {
 }
 
 function processHeaders (opts) {
-    let response = opts.response;
-    let responseInfo = opts.responseInfo;
+    const response = opts.response;
+    const responseInfo = opts.responseInfo;
+    const reponseHtml = opts.reponseHtml;
 
-    let oldHeader = responseInfo.headers;
-
-    if(oldHeader) {
-        let contentType = oldHeader['content-type'];
-        if(contentType) {
-            response.setHeader('content-type', contentType);
-        }
-    }
+    // let oldHeader = responseInfo.headers;
+    // if(oldHeader) {
+    //     let contentType = oldHeader['content-type'];
+    //     if(contentType) {
+    //         response.setHeader('content-type', contentType);
+    //     }
+    // }
+    //重新计算大小
+    const contentLength = Buffer.byteLength(reponseHtml, 'utf8');
+    response.setHeader('Conent-length', contentLength);
 }
 
 function processHtml (opts) {
@@ -426,14 +429,15 @@ async function proxyHandler (request, response, next) {
             //只从静态文件里面抓取content-type返回
             let responseInfo = JSON.parse(data);
 
-            processHeaders({
-                response: response,
-                responseInfo: responseInfo
-            });
-
             responseInfo.html = processHtml({
                 request: request,
                 html: responseInfo.html
+            });
+            
+            processHeaders({
+                response: response,
+                responseInfo: responseInfo,
+                reponseHtml: responseInfo.html
             });
 
             response.end(responseInfo.html);

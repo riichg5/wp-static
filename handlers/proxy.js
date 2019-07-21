@@ -171,14 +171,10 @@ async function onWrite (req, res, data) {
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
     console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
-    // if (
-    //         !req.url.endsWith('html') 
-    //         && !req.url.endsWith('.css')
-    //         // && (req.url.indexOf('.php') === -1)
-    //     ) {
-    //     console.log(`${req.url} 不需要处理页面内容`);
-    //     return;
-    // }
+
+    if (proxyRes.headers && proxyRes.headers['content-type']) {
+        res.setHeader('content-type', proxyRes.headers['content-type']);
+    }
 
     let body = new Buffer('');
     proxyRes.on('data', function (data) {

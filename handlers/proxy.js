@@ -171,13 +171,6 @@ async function onWrite (req, res, data) {
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
     console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
-    // if (typeis(proxyRes.headers['content-type']))
-    const istext = typeis(proxyRes, ['text/*']);
-    if(!istext) {
-        console.log(`${req.url} 不处理`);
-        return;
-    }
-    console.log(`${req.url} 要处理文本内容`);
     // if (
     //         !req.url.endsWith('html') 
     //         && !req.url.endsWith('.css')
@@ -187,12 +180,20 @@ function onProxyRes(proxyRes, req, res) {
     //     return;
     // }
 
-    let body = new Buffer('');
+    let body = new Buffer();
     proxyRes.on('data', function (data) {
         body = Buffer.concat([body, data]);
     });
 
     proxyRes.on('end', function () {
+        const istext = typeis(proxyRes, ['text/*']);
+        if (!istext) {
+            console.log(`${req.url} 不处理`);
+            res.end(body);
+            return;
+        }
+
+        console.log(`${req.url} 要处理文本内容`);
         body = body.toString();
         const output = processHtml({
             request: req,

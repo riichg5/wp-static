@@ -11,6 +11,7 @@ let isStaticOn = _config.get('isStaticOn');
 let htmlPath = _config.get('htmlPath');
 let mHtmlPath = _config.get('mobileHtmlPath');
 let lockHelper = require(_base + 'lib/lockHelper');
+const typeis = require('type-is');
 
 function isNeedStatic (req) {
     let url = req.url.trim().toLowerCase();
@@ -169,14 +170,22 @@ async function onWrite (req, res, data) {
 
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
-    if (
-            !req.url.endsWith('html') 
-            && !req.url.endsWith('.css')
-            // && (req.url.indexOf('.php') === -1)
-        ) {
-        console.log(`${req.url} 不需要处理页面内容`);
+    console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
+    // if (typeis(proxyRes.headers['content-type']))
+    const istext = typeis(proxyRes, ['text/*']);
+    if(!istext) {
+        console.log(`${req.url} 不处理`);
         return;
     }
+    console.log(`${req.url} 要处理文本内容`);
+    // if (
+    //         !req.url.endsWith('html') 
+    //         && !req.url.endsWith('.css')
+    //         // && (req.url.indexOf('.php') === -1)
+    //     ) {
+    //     console.log(`${req.url} 不需要处理页面内容`);
+    //     return;
+    // }
 
     let body = new Buffer('');
     proxyRes.on('data', function (data) {

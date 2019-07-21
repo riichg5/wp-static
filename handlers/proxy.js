@@ -469,7 +469,7 @@ async function proxyHandler (request, response, next) {
     let localFilePath = getLocalFilePath(request, pathname);
 
     console.log(`requset url: ${requestUrl}`);
-    if (isNeedStatic(request)) { 
+    if (isNeedStatic(request)) {
         //直接返回
         let isFileExist = await pExists(localFilePath);
         console.log(`isFileExist: ${isFileExist}, localFilePath: ${localFilePath}`);
@@ -494,7 +494,8 @@ async function proxyHandler (request, response, next) {
         } catch (error) {
             response.status(500).send('error');
             return;
-        }        
+        }
+        return;
     }
 
     proxy.web(request, response, {

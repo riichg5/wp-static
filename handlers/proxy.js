@@ -171,7 +171,7 @@ function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
     if (
             !req.url.endsWith('html') 
-            && (req.url.indexOf('.php') === -1)
+            // && (req.url.indexOf('.php') === -1)
         ) {
         console.log(`${req.url} 不需要处理页面内容`);
         return;

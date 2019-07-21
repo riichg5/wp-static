@@ -180,7 +180,7 @@ function onProxyRes(proxyRes, req, res) {
     //     return;
     // }
 
-    let body = new Buffer();
+    let body = new Buffer('');
     proxyRes.on('data', function (data) {
         body = Buffer.concat([body, data]);
     });

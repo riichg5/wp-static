@@ -119,8 +119,6 @@ async function onResponseEnd (req, res) {
     let context = req.context;
 
     //只有200才缓存
-    // console.log(`res.statusCode: ${res.proxyRes.statusCode}`);
-    // console.log(`res.headers: ${res.proxyRes.headers}`);
     if(isNeedStatic(req) && res.proxyRes.statusCode === 200) {
         delete res.proxyRes.headers.connection;
         delete res.proxyRes.headers['content-encoding'];
@@ -169,8 +167,63 @@ async function onWrite (req, res, data) {
     }
 }
 
-function onProxyRes (proxyRes, req, res) {
-    res.proxyRes = proxyRes;
+function onProxyRes(proxyRes, req, res) {
+    // res.proxyRes = proxyRes;
+    if(!req.url.endsWith('html')) {
+        console.log(`${req.url} 不需要处理页面内容`);
+        return;
+    }
+
+    // const _writeHead = res.writeHead;
+    // let _writeHeadArgs;
+    // const _end = res.end;
+    let body = new Buffer('');
+
+    proxyRes.on('data', function (data) {
+        body = Buffer.concat([body, data]);
+    });
+
+    proxyRes.on('end', function () {
+        body = body.toString();
+        const output = processHtml({
+            request: req,
+            html: body
+        });
+        res.end(output);
+    });
+
+    // // Defer writeHead
+    // res.writeHead = (...writeHeadArgs) => {
+    //     _writeHeadArgs = writeHeadArgs;
+    // };
+
+    // // Defer all writes
+    // res.write = () => {};
+    // res.end = (...endArgs) => {
+    //     // Do everything in the end. Means we wont be streaming the response but who cares in a dev env..
+    //     // const output = body.replace(/stufftoreplace/g, '/leweb');
+    //     const output = processHtml({
+    //         request: req,
+    //         html: html
+    //     });
+    //     if (proxyRes.headers && proxyRes.headers['content-length']) {
+    //         const contentLength = Buffer.byteLength(output, 'utf8');
+    //         // res.setHeader('content-length', output.length);
+            
+    //     }
+    //     // This disables chunked encoding
+    //     res.setHeader('transfer-encoding', '');
+    //     // Disable cache for all http as well
+    //     res.setHeader('cache-control', 'no-cache');
+    //     _writeHead.apply(res, _writeHeadArgs);
+
+    //     if (body.length) {
+    //         // Write everything via end()
+    //         _end.apply(res, [output]);
+    //     } else {
+    //         _end.apply(res, endArgs);
+    //     }
+    // }
 }
 
 function processOnPage (opts) {
@@ -354,6 +407,7 @@ function processHeaders (opts) {
 
     let oldHeader = responseInfo.headers;
     if(oldHeader) {
+        // 保留content-type
         let contentType = oldHeader['content-type'];
         if(contentType) {
             response.setHeader('content-type', contentType);
@@ -369,9 +423,9 @@ function processHtml (opts) {
     let request = opts.request;
     let html = opts.html;
 
-    if(!isStaticOn) {
-        return html;
-    }
+    // if(!isStaticOn) {
+    //     return html;
+    // }
 
     html = html.replace(/http:\/\/www.360zhijia.com\//gi, "https://www.a6se.com/");
     html = html.replace(/https:\/\/www.360zhijia.com\//gi, "https://www.a6se.com/");
@@ -396,13 +450,16 @@ function processHtml (opts) {
     }
 
     //临时过滤掉乱码
-    html = html.replace(/�/gi, "");
+    // html = html.replace(/�/gi, "");
 
     return html;
 }
 
-
 proxy.on('proxyRes', onProxyRes);
+proxy.on('proxyReq', function (proxyReq, req, res, options) {
+    //预防直接301
+    proxyReq.setHeader('host', originalHostname);
+});
 
 async function proxyHandler (request, response, next) {
     let context = request.context;
@@ -410,73 +467,39 @@ async function proxyHandler (request, response, next) {
     let requestUrlObj = url.parse(requestUrl.replace(/\/amp\//gi, '/amp'));
     let pathname = requestUrlObj.pathname;
     let localFilePath = getLocalFilePath(request, pathname);
-    let _write = response.write;
-    let _end = response.end;
 
     console.log(`requset url: ${requestUrl}`);
-
-    //直接返回
-    let isFileExist = await pExists(localFilePath);
-
-    // console.log(`isFileExist: ${isFileExist}`);
-    if(isNeedStatic(request) && isFileExist) {
-        // console.log(`${localFilePath} is exist, start readFile.`);
-        fs.readFile(localFilePath, 'utf8', (error, data) => {
-            if(error) {
-                response.status(500).send('error');
-                return;
-            }
-
+    if (isNeedStatic(request)) { 
+        //直接返回
+        let isFileExist = await pExists(localFilePath);
+        console.log(`isFileExist: ${isFileExist}, localFilePath: ${localFilePath}`);
+        if (!isFileExist) {
+            return;
+        }
+        console.log(`${localFilePath} is exist, start readFile.`);
+        try {
+            const data = fs.readFileSync(localFilePath, 'utf8');
             //只从静态文件里面抓取content-type返回
             let responseInfo = JSON.parse(data);
-
             responseInfo.html = processHtml({
                 request: request,
                 html: responseInfo.html
             });
-            
             processHeaders({
-                response: response,
+                response: res,
                 responseInfo: responseInfo,
                 reponseHtml: responseInfo.html
             });
-
-            response.end(responseInfo.html);
-        });
-        return;
+            res.end(responseInfo.html);
+        } catch (error) {
+            response.status(500).send('error');
+            return;
+        }        
     }
 
-    /************************* 透传 *************************/
-    //预防直接301
-    request.headers.host = originalHostname;
-
-    response.end = function (data) {
-        // console.log(`res.end count:`, count);
-        onResponseEnd(request, response);
-        _end.call(response, data);
-    };
-
-    response.write = function (data) {
-        onWrite(request, response, data);
-
-        let contentType = response.get('Content-Type');
-
-        if(contentType && contentType.indexOf('text/html') !== -1) {
-            let html = data.toString();
-
-            html = processHtml({
-                request: request,
-                html: html
-            });
-
-            _write.call(response, html);
-        } else {
-            _write.call(response, data);
-        }
-    };
-
     proxy.web(request, response, {
-        target: proxyDomain
+        target: proxyDomain,
+        selfHandleResponse: true
     }, function (error) {
         //error
         console.log(`proxy error ${requestUrl}: ${error.message}, stack: ${error.stack}`);

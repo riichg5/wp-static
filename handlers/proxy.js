@@ -171,6 +171,7 @@ function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
     if (
             !req.url.endsWith('html') 
+            && !req.url.endsWith('.css')
             // && (req.url.indexOf('.php') === -1)
         ) {
         console.log(`${req.url} 不需要处理页面内容`);
@@ -414,9 +415,6 @@ function processHtml (opts) {
     if(isUCBrowser(request)) {
         html = html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
     }
-
-    //临时过滤掉乱码
-    // html = html.replace(/�/gi, "");
 
     return html;
 }

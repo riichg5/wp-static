@@ -169,16 +169,15 @@ async function onWrite (req, res, data) {
 
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
-    if(!req.url.endsWith('html')) {
+    if (
+            !req.url.endsWith('html') 
+            && (req.url.indexOf('.php') === -1)
+        ) {
         console.log(`${req.url} 不需要处理页面内容`);
         return;
     }
 
-    // const _writeHead = res.writeHead;
-    // let _writeHeadArgs;
-    // const _end = res.end;
     let body = new Buffer('');
-
     proxyRes.on('data', function (data) {
         body = Buffer.concat([body, data]);
     });
@@ -191,39 +190,6 @@ function onProxyRes(proxyRes, req, res) {
         });
         res.end(output);
     });
-
-    // // Defer writeHead
-    // res.writeHead = (...writeHeadArgs) => {
-    //     _writeHeadArgs = writeHeadArgs;
-    // };
-
-    // // Defer all writes
-    // res.write = () => {};
-    // res.end = (...endArgs) => {
-    //     // Do everything in the end. Means we wont be streaming the response but who cares in a dev env..
-    //     // const output = body.replace(/stufftoreplace/g, '/leweb');
-    //     const output = processHtml({
-    //         request: req,
-    //         html: html
-    //     });
-    //     if (proxyRes.headers && proxyRes.headers['content-length']) {
-    //         const contentLength = Buffer.byteLength(output, 'utf8');
-    //         // res.setHeader('content-length', output.length);
-            
-    //     }
-    //     // This disables chunked encoding
-    //     res.setHeader('transfer-encoding', '');
-    //     // Disable cache for all http as well
-    //     res.setHeader('cache-control', 'no-cache');
-    //     _writeHead.apply(res, _writeHeadArgs);
-
-    //     if (body.length) {
-    //         // Write everything via end()
-    //         _end.apply(res, [output]);
-    //     } else {
-    //         _end.apply(res, endArgs);
-    //     }
-    // }
 }
 
 function processOnPage (opts) {

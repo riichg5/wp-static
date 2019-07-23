@@ -1,0 +1,18 @@
+{
+    "esversion": 8,
+    "globals": {
+        "_config": true,
+        "_util": true,
+        "require": true,
+        "_base": true,
+        "console": true,
+        "module": true
+    },
+    "strict": false,
+    "curly": true,
+    "eqeqeq": true,
+    "noarg": true,
+    "noempty": true,
+    "undef": true,
+    "unused": true
+}

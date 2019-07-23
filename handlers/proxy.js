@@ -1,40 +1,31 @@
 const httpProxy = require('http-proxy');
 const url = require('url');
-let fs = require('fs');
-let mkdirp = require('mkdirp');
-let pMkdirp = _util.promisify(mkdirp);
-let proxy = new httpProxy.createProxyServer();
-let proxyDomain = _config.get('proxyDomain');
-let pExists = _util.promisify(fs.exists);
-let originalHostname = _config.get('originalHostname');
-let isStaticOn = _config.get('isStaticOn');
-let htmlPath = _config.get('htmlPath');
-let mHtmlPath = _config.get('mobileHtmlPath');
-let lockHelper = require(_base + 'lib/lockHelper');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const pMkdirp = _util.promisify(mkdirp);
+const proxy = new httpProxy.createProxyServer();
+const proxyDomain = _config.get('proxyDomain');
+const pExists = _util.promisify(fs.exists);
+const originalHostname = _config.get('originalHostname');
+const isStaticOn = _config.get('isStaticOn');
+const htmlPath = _config.get('htmlPath');
+const mHtmlPath = _config.get('mobileHtmlPath');
+const lockHelper = require(_base + 'lib/lockHelper');
 const typeis = require('type-is');
 
+/**
+ * 是否需要静态化处理
+ * @param {*} req 
+ */
 function isNeedStatic (req) {
-    let url = req.url.trim().toLowerCase();
+    const url = req.url.trim().toLowerCase();
 
     if(!isStaticOn) {
         return false;
     }
-
-    // //判断首页
-    // if(isHomePage(url) === true) {
-    //     return true;
-    // }
-
     if(url.endsWith('.html') && url.indexOf('.php') === -1) {
         return true;
     }
-
-    if(
-        (url.endsWith('/amp') || url.endsWith('/amp/')) && url.replace('/amp/', '').replace('/amp', '').endsWith('.html')
-    ) {
-        return true;
-    }
-
     return false;
 }
 
@@ -43,12 +34,10 @@ function isHomePage (pureUrl) {
 }
 
 function isAmpPage (req) {
-    let url = req.url;
-
+    const url = req.url;
     if(url.endsWith('/amp') || url.endsWith('/amp/')) {
         return true;
     }
-
     return false;
 }
 
@@ -56,118 +45,111 @@ function isUCBrowser (req) {
     if(!_.isUndefined(req.isUCBrowser)) {
         return req.isUCBrowser;
     }
-
-    let userAgent = req.headers['user-agent'];
+    const userAgent = req.headers['user-agent'];
     req.isUCBrowser = userAgent && userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
     return req.isUCBrowser;
 }
 
 function getDirectoryPath (localFilePath) {
-    let lastIndex = _.lastIndexOf(localFilePath, "/");
+    const lastIndex = _.lastIndexOf(localFilePath, "/");
     return localFilePath.substring(0, lastIndex);
 }
 
 function isPcClient (req) {
     let isPcClient = !req.useragent.isMobile && !isUCBrowser(req);
-
     console.log(`is pc client: ${isPcClient}`);
 
     return isPcClient;
 }
 
 function isPcArticleRequest (req) {
-    let isPcClient = !(req.useragent.isMobile || isUCBrowser(req));
-    let isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
+    const isPcClient = !(req.useragent.isMobile || isUCBrowser(req));
+    const isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
 
     return isPcClient && isArticlePage;
 }
 
 function isMobileArticleRequest (req) {
-    let isMobileClient = req.useragent.isMobile || isUCBrowser(req);
-    let isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
+    const isMobileClient = req.useragent.isMobile || isUCBrowser(req);
+    const isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
 
     return isMobileClient && isArticlePage;
 }
 
+/**
+ * 根据终端类型，返回静态页面存储路径
+ * @param {*} req 
+ * @param {*} pathname 
+ */
 function getLocalFilePath (req, pathname) {
-
-    if(isAmpPage(req)) {
-        pathname = pathname.replace('/amp', '');
-        pathname += '.amp';
-
-        return mHtmlPath + pathname;
-    }
-
-    // //处理首页
-    // if(pathname === '/' && pathname === '') {
-    //     pathname = '/default.html';
-    // }
-
-    //UC浏览器默认为移动终端浏览器
-    // if(!req.useragent.isMobile && !isUCBrowser(req)) {
     if(isPcClient(req)){
         return htmlPath + pathname;
     }
-
     return mHtmlPath + pathname;
 }
 
-async function onResponseEnd (req, res) {
-    let requestUrl = req.url.trim().toLowerCase();
-    let requestUrlObj = url.parse(requestUrl.replace(/\/amp\//gi, '/amp'));
-    let pathname = requestUrlObj.pathname;
-    let localFilePath = getLocalFilePath(req, pathname);
-    let context = req.context;
+/**
+ * 写入静态页面文件
+ * @param {*} proxyRes 
+ * @param {*} req 
+ * @param {*} html 
+ */
+async function writeStaticHtml (proxyRes, req, html) {
+    if(
+        !isNeedStatic(req) || proxyRes.statusCode !== 200
+    ) {
+        return;
+    }
 
-    //只有200才缓存
-    if(isNeedStatic(req) && res.proxyRes.statusCode === 200) {
-        delete res.proxyRes.headers.connection;
-        delete res.proxyRes.headers['content-encoding'];
+    const requestUrl = req.url.trim().toLowerCase();
+    const requestUrlObj = url.parse(requestUrl);
+    const pathname = requestUrlObj.pathname;
+    const localFilePath = getLocalFilePath(req, pathname);
+    const context = req.context;
 
-        let [isLock, isExist] = await Promise.all([
-            lockHelper.pLock({
+    // delete proxyRes.headers.connection;
+    // delete proxyRes.headers['content-encoding'];
+    const [isLock, isExist] = await Promise.all([
+        lockHelper.pLock({
+            context: context,
+            name: localFilePath
+        }),
+        pExists(localFilePath)
+    ]);
+
+    // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
+    if(isLock === true && !isExist) {
+        // console.log(`${localFilePath} is locked. and file is not exist.`);
+        let fileInfo = {
+            headers: proxyRes.headers,
+            html: html
+        };
+
+        /*
+            解决nodejs写中文内容有乱码的问题
+            https://www.jianshu.com/p/8c04fb552c6f
+        */
+        const text = JSON.stringify(fileInfo);
+        await pMkdirp(getDirectoryPath(localFilePath));
+        fs.writeFile(localFilePath, text, 'utf8', async function (error) {
+            if(error) {
+                console.error(`write file error: ${error.message}, stack: ${error.stack}`);
+            }
+
+            await lockHelper.pUnlock({
                 context: context,
                 name: localFilePath
-            }),
-            pExists(localFilePath)
-        ]);
-
-        // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
-        if(isLock === true && !isExist) {
-            // console.log(`${localFilePath} is locked. and file is not exist.`);
-            let fileInfo = {
-                headers: res.proxyRes.headers,
-                html: context.content.join('')
-            };
-
-            /*
-                解决nodejs写中文内容有乱码的问题
-                https://www.jianshu.com/p/8c04fb552c6f
-            */
-            let text = JSON.stringify(fileInfo, true, 2);
-            // console.log("arguments: " + _util.inspect(arguments, {depth: 2}));
-
-            await pMkdirp(getDirectoryPath(localFilePath));
-            fs.writeFile(localFilePath, text, 'utf8', async function (error) {
-                if(error) {
-                    console.error(`write file error: ${error.message}, stack: ${error.stack}`);
-                }
-
-                await lockHelper.pUnlock({
-                    context: context,
-                    name: localFilePath
-                });
             });
-        }
+        });
     }
 }
 
-async function onWrite (req, res, data) {
-    if(isNeedStatic(req)) {
-        req.context.content.push(data.toString());
-    }
-}
-
+/**
+ * http proxy 代理请求中间内容处理方法
+ * @param {*} proxyRes 
+ * @param {*} req 
+ * @param {*} res 
+ */
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
     console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
@@ -196,6 +178,10 @@ function onProxyRes(proxyRes, req, res) {
             html: body
         });
         res.end(output);
+        writeStaticHtml(proxyRes, req, body)
+            .then(() => {})
+            .catch(error => {
+            });
     });
 }
 
@@ -233,13 +219,13 @@ function processOnPage (opts) {
     */
     if(!isPcClient(request)) {
         // console.log(`html=> ${html}`);
-        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i, "");
+        html = html.replace(/(<div class="tg-m tg-site">)[\S|\s]+(2018527320"><\/ins>\r\n<script>\r\n\(adsbygoogle \= window\.adsbygoogle \|\| \[\]\)\.push\(\{\}\);\r\n<\/script><\/div>)/i, '');
     }
 
     /**
         去掉文章页面的social div，让下面的广告更贴近文章内容
     */
-    html = html.replace(`<div id="social"></div>`, "");
+    html = html.replace(`<div id="social"></div>`, '');
 
     return html;
 }
@@ -387,18 +373,14 @@ function processHeaders (opts) {
         }
     }
     //重新计算大小
-    const contentLength = Buffer.byteLength(reponseHtml, 'utf8');
-    response.setHeader('Conent-Length', contentLength);
-    console.log(`Conent-Length: ${contentLength}`);
+    // const contentLength = Buffer.byteLength(reponseHtml, 'utf8');
+    // response.setHeader('Conent-Length', contentLength);
+    // console.log(`Conent-Length: ${contentLength}`);
 }
 
 function processHtml (opts) {
     let request = opts.request;
     let html = opts.html;
-
-    // if(!isStaticOn) {
-    //     return html;
-    // }
 
     html = html.replace(/http:\/\/www.360zhijia.com/gi, "https://www.a6se.com");
     html = html.replace(/https:\/\/www.360zhijia.com/gi, "https://www.a6se.com");
@@ -409,18 +391,18 @@ function processHtml (opts) {
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 
-    html = processOnPage({
-        html: html,
-        request: request
-    });
+    // html = processOnPage({
+    //     html: html,
+    //     request: request
+    // });
 
-    html = processAds({
-        html: html,
-        request: request
-    });
+    // html = processAds({
+    //     html: html,
+    //     request: request
+    // });
 
     if(isUCBrowser(request)) {
-        html = html.replace(/ad-pc ad-site/gi, "aa-pc aa-site");
+        html = html.replace(/ad-pc ad-site/gi, 'aa-pc aa-site');
     }
 
     return html;
@@ -433,7 +415,7 @@ proxy.on('proxyReq', function (proxyReq, req, res, options) {
 });
 
 async function proxyHandler (request, response, next) {
-    let context = request.context;
+    // let context = request.context;
     let requestUrl = request.url.trim().toLowerCase();
     let requestUrlObj = url.parse(requestUrl.replace(/\/amp\//gi, '/amp'));
     let pathname = requestUrlObj.pathname;
@@ -445,8 +427,20 @@ async function proxyHandler (request, response, next) {
         let isFileExist = await pExists(localFilePath);
         console.log(`isFileExist: ${isFileExist}, localFilePath: ${localFilePath}`);
         if (!isFileExist) {
+            proxy.web(request, response, {
+                target: proxyDomain,
+                selfHandleResponse: true
+            }, function (error) {
+                console.log(`proxy error ${requestUrl}: ${error.message}, stack: ${error.stack}`);
+                response.proxyRes = {
+                    headers: {},
+                    statusCode: 500
+                };
+                response.status(500).end(`Server Error! error message: ${error.message}, error stack: ${error.stack}`);
+            });
             return;
         }
+
         console.log(`${localFilePath} is exist, start readFile.`);
         try {
             const data = fs.readFileSync(localFilePath, 'utf8');
@@ -457,30 +451,17 @@ async function proxyHandler (request, response, next) {
                 html: responseInfo.html
             });
             processHeaders({
-                response: res,
+                response: response,
                 responseInfo: responseInfo,
                 reponseHtml: responseInfo.html
             });
-            res.end(responseInfo.html);
+            response.end(responseInfo.html);
         } catch (error) {
             response.status(500).send('error');
             return;
         }
         return;
     }
-
-    proxy.web(request, response, {
-        target: proxyDomain,
-        selfHandleResponse: true
-    }, function (error) {
-        //error
-        console.log(`proxy error ${requestUrl}: ${error.message}, stack: ${error.stack}`);
-        response.proxyRes = {
-            headers: {},
-            statusCode: 500
-        };
-        response.status(500).end(`Server Error! error message: ${error.message}, error stack: ${error.stack}`);
-    });
 }
 
 function handler() {

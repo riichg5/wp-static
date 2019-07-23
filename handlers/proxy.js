@@ -414,6 +414,20 @@ proxy.on('proxyReq', function (proxyReq, req, res, options) {
     proxyReq.setHeader('host', originalHostname);
 });
 
+function proxyResource(request, response) {
+    proxy.web(request, response, {
+        target: proxyDomain,
+        selfHandleResponse: true
+    }, function (error) {
+        console.log(`proxy error ${request.url}: ${error.message}, stack: ${error.stack}`);
+        response.proxyRes = {
+            headers: {},
+            statusCode: 500
+        };
+        response.status(500).end(`Server Error! error message: ${error.message}, error stack: ${error.stack}`);
+    });
+}
+
 async function proxyHandler (request, response, next) {
     // let context = request.context;
     let requestUrl = request.url.trim().toLowerCase();
@@ -427,17 +441,7 @@ async function proxyHandler (request, response, next) {
         let isFileExist = await pExists(localFilePath);
         console.log(`isFileExist: ${isFileExist}, localFilePath: ${localFilePath}`);
         if (!isFileExist) {
-            proxy.web(request, response, {
-                target: proxyDomain,
-                selfHandleResponse: true
-            }, function (error) {
-                console.log(`proxy error ${requestUrl}: ${error.message}, stack: ${error.stack}`);
-                response.proxyRes = {
-                    headers: {},
-                    statusCode: 500
-                };
-                response.status(500).end(`Server Error! error message: ${error.message}, error stack: ${error.stack}`);
-            });
+            proxyResource(request, response);
             return;
         }
 
@@ -462,6 +466,8 @@ async function proxyHandler (request, response, next) {
         }
         return;
     }
+    
+    proxyResource(request, response);
 }
 
 function handler() {

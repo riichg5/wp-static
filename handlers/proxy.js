@@ -165,18 +165,20 @@ async function writeStaticHtml (proxyRes, req, html) {
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
     const url = req.url.toLowerCase().trim();
-    console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
+    console.log(`proxyRes.statusCode: ${proxyRes.statusCode}, proxyRes => ${JSON.stringify(proxyRes.headers)}`);
 
     // if (proxyRes.headers && proxyRes.headers['content-type']) {
     //     res.setHeader('content-type', proxyRes.headers['content-type']);
     // }
+    // 保留statusCode
+    res.statusCode = proxyRes.statusCode;
     // 保留header
     for (const header in proxyRes.headers) {
         const lowerHeader = header.toLowerCase();
         if (['transfer-encoding', 'date'].indexOf(lowerHeader) === -1) {
             res.setHeader(header, proxyRes.headers[header]);
         }
-    }
+    }    
 
     let body = new Buffer('');
     proxyRes.on('data', function (data) {

@@ -164,11 +164,18 @@ async function writeStaticHtml (proxyRes, req, html) {
  */
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
-    const url = req.url;
+    const url = req.url.toLowerCase().trim();
     console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
 
-    if (proxyRes.headers && proxyRes.headers['content-type']) {
-        res.setHeader('content-type', proxyRes.headers['content-type']);
+    // if (proxyRes.headers && proxyRes.headers['content-type']) {
+    //     res.setHeader('content-type', proxyRes.headers['content-type']);
+    // }
+    // 保留header
+    for (const header in proxyRes.headers) {
+        const lowerHeader = header.toLowerCase();
+        if (['transfer-encoding', 'date'].indexOf(lowerHeader) === -1) {
+            res.setHeader(header, proxyRes.headers[header]);
+        }
     }
 
     let body = new Buffer('');
@@ -179,12 +186,12 @@ function onProxyRes(proxyRes, req, res) {
     proxyRes.on('end', function () {
         const istext = typeis(proxyRes, ['text/*']);
         if (!istext || isAdminPage(req.url)) {
-            console.log(`${req.url} 不处理`);
+            console.log(`${url} 不处理`);
             res.end(body);
             return;
         }
 
-        console.log(`${req.url} 要处理文本内容`);
+        console.log(`${url} 要处理文本内容`);
         body = body.toString();
         const output = processHtml({
             request: req,

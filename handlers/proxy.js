@@ -192,6 +192,10 @@ function onProxyRes(proxyRes, req, res) {
             res.end(body);
             return;
         }
+        if (res.statusCode < 200 && res.statusCode >= 300) {
+            console.log(`statusCode为${res.statusCode}，不处理`);
+            return;
+        }
 
         console.log(`${url} 要处理文本内容`);
         body = body.toString();

@@ -23,6 +23,9 @@ function isNeedStatic (req) {
     if(!isStaticOn) {
         return false;
     }
+    if(isAdminPage(url)) {
+        return false;
+    }
     if(url.endsWith('.html') && url.indexOf('.php') === -1) {
         return true;
     }
@@ -31,6 +34,15 @@ function isNeedStatic (req) {
 
 function isHomePage (pureUrl) {
     return pureUrl === '/' || pureUrl === '';
+}
+
+function isAdminPage(pageUrl) {
+    const isWpAdminPage = pageUrl.indexOf('wp-admin') !== -1;
+    const isAdminLogin = pageUrl.indexOf('wp-login.php') !== -1;
+    if(isWpAdminPage || isAdminLogin) {
+        return true;
+    }
+    return false;
 }
 
 function isAmpPage (req) {
@@ -152,6 +164,7 @@ async function writeStaticHtml (proxyRes, req, html) {
  */
 function onProxyRes(proxyRes, req, res) {
     // res.proxyRes = proxyRes;
+    const url = req.url;
     console.log(`proxyRes => ${JSON.stringify(proxyRes.headers)}`);
 
     if (proxyRes.headers && proxyRes.headers['content-type']) {
@@ -165,7 +178,7 @@ function onProxyRes(proxyRes, req, res) {
 
     proxyRes.on('end', function () {
         const istext = typeis(proxyRes, ['text/*']);
-        if (!istext) {
+        if (!istext || isAdminPage(req.url)) {
             console.log(`${req.url} 不处理`);
             res.end(body);
             return;

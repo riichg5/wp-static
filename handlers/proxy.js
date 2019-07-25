@@ -455,6 +455,8 @@ function processHtml (opts) {
     html = html.replace(/https:\/\/www.360zhijia.cn/gi, "https://www.a6se.com");
     html = html.replace(/http:\/\/www.360zhijia.cn/gi, "https://www.a6se.com");
     html = html.replace(/www.360zhijia.cn/gi, "www.a6se.com");
+    html = html.replace(/www.360zhijia.cn/gi, "www.a6se.com");
+    html = html.replace(/thumbnail\.php\?src\=https:\/\/www.a6se.com\/wp-content/gi, "thumbnail\.php\?src\=\/wp-content");
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     // html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 

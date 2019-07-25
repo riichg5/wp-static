@@ -379,7 +379,11 @@ async function writeStaticHtml (proxyRes, req, html) {
  * @param {*} res 
  */
 function onProxyRes(proxyRes, req, res) {
-    console.log(`proxyRes.statusCode: ${proxyRes.statusCode}, proxyRes => ${JSON.stringify(proxyRes.headers)}`);
+    console.log(`
+        url: ${proxyRes.url}
+        proxyRes.statusCode: ${proxyRes.statusCode}, 
+        proxyRes header => ${JSON.stringify(proxyRes.headers)}
+    `);
     // 保留statusCode
     res.statusCode = proxyRes.statusCode;
     // 保留header

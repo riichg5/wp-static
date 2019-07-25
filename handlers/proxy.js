@@ -13,204 +13,6 @@ const mHtmlPath = _config.get('mobileHtmlPath');
 const lockHelper = require(_base + 'lib/lockHelper');
 const typeis = require('type-is');
 
-/**
- * 是否需要静态化处理
- * @param {*} req 
- */
-function isNeedStatic (req) {
-    const url = req.url.trim().toLowerCase();
-
-    if(!isStaticOn) {
-        return false;
-    }
-    if(isAdminPage(url)) {
-        return false;
-    }
-    if(url.endsWith('.html') && url.indexOf('.php') === -1) {
-        return true;
-    }
-    return false;
-}
-
-function isHomePage (pureUrl) {
-    return pureUrl === '/' || pureUrl === '';
-}
-
-function isAdminPage(pageUrl) {
-    const isWpAdminPage = pageUrl.indexOf('wp-admin') !== -1;
-    const isAdminLogin = pageUrl.indexOf('wp-login.php') !== -1;
-    if(isWpAdminPage || isAdminLogin) {
-        return true;
-    }
-    return false;
-}
-
-function isAmpPage (req) {
-    const url = req.url;
-    if(url.endsWith('/amp') || url.endsWith('/amp/')) {
-        return true;
-    }
-    return false;
-}
-
-function isUCBrowser (req) {
-    if(!_.isUndefined(req.isUCBrowser)) {
-        return req.isUCBrowser;
-    }
-    const userAgent = req.headers['user-agent'];
-    req.isUCBrowser = userAgent && userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
-    return req.isUCBrowser;
-}
-
-function getDirectoryPath (localFilePath) {
-    const lastIndex = _.lastIndexOf(localFilePath, "/");
-    return localFilePath.substring(0, lastIndex);
-}
-
-function isPcClient (req) {
-    let isPcClient = !req.useragent.isMobile && !isUCBrowser(req);
-    console.log(`is pc client: ${isPcClient}`);
-
-    return isPcClient;
-}
-
-function isPcArticleRequest (req) {
-    const isPcClient = !(req.useragent.isMobile || isUCBrowser(req));
-    const isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
-
-    return isPcClient && isArticlePage;
-}
-
-function isMobileArticleRequest (req) {
-    const isMobileClient = req.useragent.isMobile || isUCBrowser(req);
-    const isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
-
-    return isMobileClient && isArticlePage;
-}
-
-/**
- * 根据终端类型，返回静态页面存储路径
- * @param {*} req 
- * @param {*} pathname 
- */
-function getLocalFilePath (req, pathname) {
-    if(isPcClient(req)){
-        return htmlPath + pathname;
-    }
-    return mHtmlPath + pathname;
-}
-
-/**
- * 写入静态页面文件
- * @param {*} proxyRes 
- * @param {*} req 
- * @param {*} html 
- */
-async function writeStaticHtml (proxyRes, req, html) {
-    if(
-        !isNeedStatic(req) || proxyRes.statusCode !== 200
-    ) {
-        return;
-    }
-
-    const requestUrl = req.url.trim().toLowerCase();
-    const requestUrlObj = url.parse(requestUrl);
-    const pathname = requestUrlObj.pathname;
-    const localFilePath = getLocalFilePath(req, pathname);
-    const context = req.context;
-
-    // delete proxyRes.headers.connection;
-    // delete proxyRes.headers['content-encoding'];
-    const [isLock, isExist] = await Promise.all([
-        lockHelper.pLock({
-            context: context,
-            name: localFilePath
-        }),
-        pExists(localFilePath)
-    ]);
-
-    // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
-    if(isLock === true && !isExist) {
-        // console.log(`${localFilePath} is locked. and file is not exist.`);
-        let fileInfo = {
-            headers: proxyRes.headers,
-            html: html
-        };
-
-        /*
-            解决nodejs写中文内容有乱码的问题
-            https://www.jianshu.com/p/8c04fb552c6f
-        */
-        const text = JSON.stringify(fileInfo);
-        await pMkdirp(getDirectoryPath(localFilePath));
-        fs.writeFile(localFilePath, text, 'utf8', async function (error) {
-            if(error) {
-                console.error(`write file error: ${error.message}, stack: ${error.stack}`);
-            }
-
-            await lockHelper.pUnlock({
-                context: context,
-                name: localFilePath
-            });
-        });
-    }
-}
-
-/**
- * http proxy 代理请求中间内容处理方法
- * @param {*} proxyRes 
- * @param {*} req 
- * @param {*} res 
- */
-function onProxyRes(proxyRes, req, res) {
-    // res.proxyRes = proxyRes;
-    const url = req.url.toLowerCase().trim();
-    console.log(`proxyRes.statusCode: ${proxyRes.statusCode}, proxyRes => ${JSON.stringify(proxyRes.headers)}`);
-
-    // if (proxyRes.headers && proxyRes.headers['content-type']) {
-    //     res.setHeader('content-type', proxyRes.headers['content-type']);
-    // }
-    // 保留statusCode
-    res.statusCode = proxyRes.statusCode;
-    // 保留header
-    for (const header in proxyRes.headers) {
-        const lowerHeader = header.toLowerCase();
-        if (['transfer-encoding', 'date'].indexOf(lowerHeader) === -1) {
-            res.setHeader(header, proxyRes.headers[header]);
-        }
-    }    
-
-    let body = new Buffer('');
-    proxyRes.on('data', function (data) {
-        body = Buffer.concat([body, data]);
-    });
-
-    proxyRes.on('end', function () {
-        const istext = typeis(proxyRes, ['text/*']);
-        if (!istext || isAdminPage(req.url)) {
-            console.log(`${url} 不处理`);
-            res.end(body);
-            return;
-        }
-        if (res.statusCode < 200 && res.statusCode >= 300) {
-            console.log(`statusCode为${res.statusCode}，不处理`);
-            return;
-        }
-
-        console.log(`${url} 要处理文本内容`);
-        body = body.toString();
-        const output = processHtml({
-            request: req,
-            html: body
-        });
-        res.end(output);
-        writeStaticHtml(proxyRes, req, body)
-            .then(() => {})
-            .catch(error => {
-            });
-    });
-}
-
 function processOnPage (opts) {
     let html = opts.html;
     let request = opts.request;
@@ -383,6 +185,219 @@ function processAds (opts) {
     }
 
     return html;
+}
+
+/**
+ * 是否需要静态化处理
+ * @param {*} req 
+ */
+function isNeedStatic (req) {
+    const url = req.url.trim().toLowerCase();
+
+    if(!isStaticOn) {
+        return false;
+    }
+    if(isAdminPage(url)) {
+        return false;
+    }
+    if(url.endsWith('.html') && url.indexOf('.php') === -1) {
+        return true;
+    }
+    return false;
+}
+
+function isHomePage (pageUrl) {
+    return pageUrl === '/' || pageUrl === '';
+}
+
+function isAdminPage(pageUrl) {
+    const isWpAdminPage = pageUrl.indexOf('wp-admin') !== -1;
+    const isAdminLogin = pageUrl.indexOf('wp-login.php') !== -1;
+    if(isWpAdminPage || isAdminLogin) {
+        return true;
+    }
+    return false;
+}
+
+function isCss(urlObj) {
+    return urlObj.pathname.endsWith('.css');
+}
+
+function isJs(urlObj) {
+    return urlObj.pathname.endsWith('.js');
+}
+
+function isCSSOrJs(url) {
+    const urlObj = url.parse(url);
+    return isCss(urlObj) || isJs(urlObj);
+}
+
+function isAmpPage (req) {
+    const url = req.url;
+    if(url.endsWith('/amp') || url.endsWith('/amp/')) {
+        return true;
+    }
+    return false;
+}
+
+function isUCBrowser (req) {
+    if(!_.isUndefined(req.isUCBrowser)) {
+        return req.isUCBrowser;
+    }
+    const userAgent = req.headers['user-agent'];
+    req.isUCBrowser = userAgent && userAgent.toLowerCase().indexOf('ucbrowser') !== -1;
+    return req.isUCBrowser;
+}
+
+function getDirectoryPath (localFilePath) {
+    const lastIndex = _.lastIndexOf(localFilePath, "/");
+    return localFilePath.substring(0, lastIndex);
+}
+
+function isPcClient (req) {
+    let isPcClient = !req.useragent.isMobile && !isUCBrowser(req);
+    console.log(`is pc client: ${isPcClient}`);
+
+    return isPcClient;
+}
+
+function isPcArticleRequest (req) {
+    const isPcClient = !(req.useragent.isMobile || isUCBrowser(req));
+    const isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
+
+    return isPcClient && isArticlePage;
+}
+
+function isMobileArticleRequest (req) {
+    const isMobileClient = req.useragent.isMobile || isUCBrowser(req);
+    const isArticlePage = req.url.trim().toLowerCase().endsWith('.html');
+
+    return isMobileClient && isArticlePage;
+}
+
+/**
+ * 根据终端类型，返回静态页面存储路径
+ * @param {*} req 
+ * @param {*} pathname 
+ */
+function getLocalFilePath (req, pathname) {
+    if(isPcClient(req)){
+        return htmlPath + pathname;
+    }
+    return mHtmlPath + pathname;
+}
+
+/**
+ * 写入静态页面文件
+ * @param {*} proxyRes 
+ * @param {*} req 
+ * @param {*} html 
+ */
+async function writeStaticHtml (proxyRes, req, html) {
+    if(
+        !isNeedStatic(req) || proxyRes.statusCode !== 200
+    ) {
+        return;
+    }
+
+    const requestUrl = req.url.trim().toLowerCase();
+    const requestUrlObj = url.parse(requestUrl);
+    const pathname = requestUrlObj.pathname;
+    const localFilePath = getLocalFilePath(req, pathname);
+    const context = req.context;
+
+    // delete proxyRes.headers.connection;
+    // delete proxyRes.headers['content-encoding'];
+    const [isLock, isExist] = await Promise.all([
+        lockHelper.pLock({
+            context: context,
+            name: localFilePath
+        }),
+        pExists(localFilePath)
+    ]);
+
+    // console.log(`isLock: ${isLock}, isExist: ${isExist}`);
+    if(isLock === true && !isExist) {
+        // console.log(`${localFilePath} is locked. and file is not exist.`);
+        let fileInfo = {
+            headers: proxyRes.headers,
+            html: html
+        };
+
+        /*
+            解决nodejs写中文内容有乱码的问题
+            https://www.jianshu.com/p/8c04fb552c6f
+        */
+        const text = JSON.stringify(fileInfo);
+        await pMkdirp(getDirectoryPath(localFilePath));
+        fs.writeFile(localFilePath, text, 'utf8', async function (error) {
+            if(error) {
+                console.error(`write file error: ${error.message}, stack: ${error.stack}`);
+            }
+
+            await lockHelper.pUnlock({
+                context: context,
+                name: localFilePath
+            });
+        });
+    }
+}
+
+/**
+ * http proxy 代理请求中间内容处理方法
+ * @param {*} proxyRes 
+ * @param {*} req 
+ * @param {*} res 
+ */
+function onProxyRes(proxyRes, req, res) {
+    // res.proxyRes = proxyRes;
+    const url = req.url.toLowerCase().trim();
+    console.log(`proxyRes.statusCode: ${proxyRes.statusCode}, proxyRes => ${JSON.stringify(proxyRes.headers)}`);
+
+    // if (proxyRes.headers && proxyRes.headers['content-type']) {
+    //     res.setHeader('content-type', proxyRes.headers['content-type']);
+    // }
+    // 保留statusCode
+    res.statusCode = proxyRes.statusCode;
+    // 保留header
+    for (const header in proxyRes.headers) {
+        const lowerHeader = header.toLowerCase();
+        if (['transfer-encoding', 'date'].indexOf(lowerHeader) === -1) {
+            res.setHeader(header, proxyRes.headers[header]);
+        }
+    }    
+
+    let body = new Buffer('');
+    proxyRes.on('data', function (data) {
+        body = Buffer.concat([body, data]);
+    });
+
+    proxyRes.on('end', function () {
+        const istext = typeis(proxyRes, ['text/*']);
+        const url = req.url.toLowerCase().trim();
+        if (!istext || isAdminPage(url) || isCSSOrJs(url)) {
+            console.log(`${url} 不处理`);
+            res.end(body);
+            return;
+        }
+        if (res.statusCode < 200 && res.statusCode >= 300) {
+            console.log(`statusCode为${res.statusCode}，不处理`);
+            res.end(body);
+            return;
+        }
+
+        console.log(`${url} 要处理文本内容`);
+        body = body.toString();
+        const output = processHtml({
+            request: req,
+            html: body
+        });
+        res.end(output);
+        writeStaticHtml(proxyRes, req, body)
+            .then(() => {})
+            .catch(error => {
+            });
+    });
 }
 
 function processHeaders (opts) {

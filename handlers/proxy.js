@@ -238,7 +238,7 @@ function isNeedChangeContent(req, proxyRes) {
     const urlObj = url.parse(pageUrl);
     if (
         !istext || 
-        isAdminPage(url) || 
+        isAdminPage(pageUrl) ||
         urlObj.pathname.endsWith('.js') || 
         urlObj.pathname.endsWith('.css') ||
         urlObj.pathname.endsWith('.woff') ||

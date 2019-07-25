@@ -240,7 +240,7 @@ function isNeedChangeContent(req, proxyRes) {
         !istext || 
         isAdminPage(pageUrl) ||
         urlObj.pathname.endsWith('.js') || 
-        urlObj.pathname.endsWith('.css') ||
+        // urlObj.pathname.endsWith('.css') ||
         urlObj.pathname.endsWith('.woff') ||
         urlObj.pathname.endsWith('.ttf')
     ) {
@@ -500,7 +500,6 @@ async function proxyHandler (request, response, next) {
             proxyResource(request, response);
             return;
         }
-
         console.log(`${localFilePath} is exist, start readFile.`);
         try {
             const data = fs.readFileSync(localFilePath, 'utf8');

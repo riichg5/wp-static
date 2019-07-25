@@ -240,7 +240,7 @@ function isNeedChangeContent(req, proxyRes) {
         !istext || 
         isAdminPage(pageUrl) ||
         urlObj.pathname.endsWith('.js') || 
-        // urlObj.pathname.endsWith('.css') ||
+        urlObj.pathname.endsWith('.css') ||
         urlObj.pathname.endsWith('.woff') ||
         urlObj.pathname.endsWith('.ttf')
     ) {

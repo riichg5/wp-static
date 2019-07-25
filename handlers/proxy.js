@@ -3,7 +3,6 @@ const url = require('url');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const pMkdirp = _util.promisify(mkdirp);
-const proxy = new httpProxy.createProxyServer();
 const proxyDomain = _config.get('proxyDomain');
 const pExists = _util.promisify(fs.exists);
 const originalHostname = _config.get('originalHostname');
@@ -12,6 +11,7 @@ const htmlPath = _config.get('htmlPath');
 const mHtmlPath = _config.get('mobileHtmlPath');
 const lockHelper = require(_base + 'lib/lockHelper');
 const typeis = require('type-is');
+const proxy = new httpProxy.createProxyServer();
 
 function processOnPage (opts) {
     let html = opts.html;
@@ -378,7 +378,7 @@ function onProxyRes(proxyRes, req, res) {
             res.setHeader(header, proxyRes.headers[header]);
         }
     }    
-    let body = new Buffer('');
+    let body = Buffer.from([]); //new Buffer('');
     proxyRes.on('data', function (data) {
         body = Buffer.concat([body, data]);
     });
@@ -457,12 +457,6 @@ function processHtml (opts) {
     return html;
 }
 
-proxy.on('proxyRes', onProxyRes);
-proxy.on('proxyReq', function (proxyReq, req, res, options) {
-    //预防直接301
-    proxyReq.setHeader('host', originalHostname);
-});
-
 function proxyResource(request, response) {
     proxy.web(request, response, {
         target: proxyDomain,
@@ -478,7 +472,6 @@ function proxyResource(request, response) {
 }
 
 async function proxyHandler (request, response, next) {
-    // let context = request.context;
     let requestUrl = request.url.trim().toLowerCase();
     let requestUrlObj = url.parse(requestUrl.replace(/\/amp\//gi, '/amp'));
     let pathname = requestUrlObj.pathname;
@@ -518,8 +511,13 @@ async function proxyHandler (request, response, next) {
     proxyResource(request, response);
 }
 
-function handler() {
-    return proxyHandler;
-}
+proxy.on('proxyRes', onProxyRes);
+proxy.on('proxyReq', function (proxyReq, req, res, options) {
+    //预防直接301
+    proxyReq.setHeader('host', originalHostname);
+});
 
-module.exports = handler;
+
+module.exports = () => {
+    return proxyHandler;
+};

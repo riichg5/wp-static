@@ -6,7 +6,8 @@
         "require": true,
         "_base": true,
         "console": true,
-        "module": true
+        "module": true,
+        "Buffer": true
     },
     "strict": false,
     "curly": true,

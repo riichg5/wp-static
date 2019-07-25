@@ -399,13 +399,13 @@ function onProxyRes(proxyRes, req, res) {
     });
 
     proxyRes.on('end', function () {
-        const isNeedChange = isNeedChangeContent(req, proxyRes);
-        if (!isNeedChange) {
+        if (res.statusCode < 200 && res.statusCode >= 300) {
+            console.log(`statusCode为${res.statusCode}，不处理`);
             res.end(body);
             return;
         }
-        if (res.statusCode < 200 && res.statusCode >= 300) {
-            console.log(`statusCode为${res.statusCode}，不处理`);
+        const isNeedChange = isNeedChangeContent(req, proxyRes);
+        if (!isNeedChange) {
             res.end(body);
             return;
         }

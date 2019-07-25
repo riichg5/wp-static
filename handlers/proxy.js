@@ -380,7 +380,7 @@ async function writeStaticHtml (proxyRes, req, html) {
  */
 function onProxyRes(proxyRes, req, res) {
     console.log(`
-        url: ${proxyRes.url}
+        url: ${req.url},
         proxyRes.statusCode: ${proxyRes.statusCode}, 
         proxyRes header => ${JSON.stringify(proxyRes.headers)}
     `);

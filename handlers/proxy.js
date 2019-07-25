@@ -13,6 +13,9 @@ const lockHelper = require(_base + 'lib/lockHelper');
 const typeis = require('type-is');
 const proxy = new httpProxy.createProxyServer();
 
+// 注意，此值必须小些
+const RetainHeaders = ['content-type'];
+
 function processOnPage (opts) {
     let html = opts.html;
     let request = opts.request;
@@ -267,6 +270,16 @@ function isUCBrowser (req) {
     return req.isUCBrowser;
 }
 
+function getLowerHeader(proxyResHeaders) {
+    const pureHeader = Object.create(null);
+    for (const key in proxyResHeaders) {
+        if (proxyResHeaders.hasOwnProperty(key)) {
+            pureHeader[key.toLowerCase()] = proxyResHeaders[key];
+        }
+    }
+    return pureHeader;
+}
+
 function getDirectoryPath (localFilePath) {
     const lastIndex = _.lastIndexOf(localFilePath, "/");
     return localFilePath.substring(0, lastIndex);
@@ -324,8 +337,6 @@ async function writeStaticHtml (proxyRes, req, html) {
     const localFilePath = getLocalFilePath(req, pathname);
     const context = req.context;
 
-    // delete proxyRes.headers.connection;
-    // delete proxyRes.headers['content-encoding'];
     const [isLock, isExist] = await Promise.all([
         lockHelper.pLock({
             context: context,
@@ -338,7 +349,7 @@ async function writeStaticHtml (proxyRes, req, html) {
     if(isLock === true && !isExist) {
         // console.log(`${localFilePath} is locked. and file is not exist.`);
         let fileInfo = {
-            headers: proxyRes.headers,
+            headers: getLowerHeader(proxyRes.headers), //需要小些化key写入
             html: html
         };
 
@@ -374,7 +385,7 @@ function onProxyRes(proxyRes, req, res) {
     // 保留header
     for (const header in proxyRes.headers) {
         const lowerHeader = header.toLowerCase();
-        if (['transfer-encoding', 'date'].indexOf(lowerHeader) === -1) {
+        if (RetainHeaders.indexOf(lowerHeader) !== -1) {
             res.setHeader(header, proxyRes.headers[header]);
         }
     }    
@@ -411,20 +422,16 @@ function onProxyRes(proxyRes, req, res) {
 function processHeaders (opts) {
     const response = opts.response;
     const responseInfo = opts.responseInfo;
-    const reponseHtml = opts.reponseHtml;
 
     let oldHeader = responseInfo.headers;
     if(oldHeader) {
-        // 保留content-type
-        let contentType = oldHeader['content-type'];
-        if(contentType) {
-            response.setHeader('content-type', contentType);
+        for(const header of RetainHeaders) {
+            const headerVal = oldHeader[header];
+            if (headerVal) {
+                response.setHeader(header, headerVal);
+            }
         }
     }
-    //重新计算大小
-    // const contentLength = Buffer.byteLength(reponseHtml, 'utf8');
-    // response.setHeader('Conent-Length', contentLength);
-    // console.log(`Conent-Length: ${contentLength}`);
 }
 
 function processHtml (opts) {
@@ -497,8 +504,7 @@ async function proxyHandler (request, response, next) {
             });
             processHeaders({
                 response: response,
-                responseInfo: responseInfo,
-                reponseHtml: responseInfo.html
+                responseInfo: responseInfo
             });
             response.end(responseInfo.html);
         } catch (error) {

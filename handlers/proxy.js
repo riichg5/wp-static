@@ -386,13 +386,6 @@ function onProxyRes(proxyRes, req, res) {
     `);
     // 保留statusCode
     res.statusCode = proxyRes.statusCode;
-    // 保留header
-    for (const header in proxyRes.headers) {
-        const lowerHeader = header.toLowerCase();
-        if (RetainHeaders.indexOf(lowerHeader) !== -1) {
-            res.setHeader(header, proxyRes.headers[header]);
-        }
-    }    
     let body = Buffer.from([]); //new Buffer('');
     proxyRes.on('data', function (data) {
         body = Buffer.concat([body, data]);
@@ -401,13 +394,27 @@ function onProxyRes(proxyRes, req, res) {
     proxyRes.on('end', function () {
         if (res.statusCode < 200 && res.statusCode >= 300) {
             console.log(`statusCode为${res.statusCode}，不处理`);
+            for (const header in proxyRes.headers) {
+                res.setHeader(header, proxyRes.headers[header]);
+            }
             res.end(body);
             return;
         }
         const isNeedChange = isNeedChangeContent(req, proxyRes);
         if (!isNeedChange) {
+            for (const header in proxyRes.headers) {
+                res.setHeader(header, proxyRes.headers[header]);
+            }
             res.end(body);
             return;
+        }
+
+        // 保留个别header
+        for (const header in proxyRes.headers) {
+            const lowerHeader = header.toLowerCase();
+            if (RetainHeaders.indexOf(lowerHeader) !== -1) {
+                res.setHeader(header, proxyRes.headers[header]);
+            }
         }
         console.log(`${req.url} 要处理文本内容`);
         body = body.toString();

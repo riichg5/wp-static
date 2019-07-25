@@ -232,6 +232,24 @@ function isCSSOrJs(pageUrl) {
     return isCss(urlObj) || isJs(urlObj);
 }
 
+function isNeedChangeContent(req, proxyRes) {
+    const pageUrl = req.url.toLowerCase().trim();
+    const istext = typeis(proxyRes, ['text/*']);
+    const urlObj = url.parse(pageUrl);
+    if (
+        !istext || 
+        isAdminPage(url) || 
+        urlObj.pathname.endsWith('.js') || 
+        urlObj.pathname.endsWith('.css') ||
+        urlObj.pathname.endsWith('.woff') ||
+        urlObj.pathname.endsWith('.ttf')
+    ) {
+        console.log(`${pageUrl} 不处理`);
+        return false;
+    }
+    return true;
+}
+
 function isAmpPage (req) {
     const url = req.url;
     if(url.endsWith('/amp') || url.endsWith('/amp/')) {
@@ -373,10 +391,8 @@ function onProxyRes(proxyRes, req, res) {
     });
 
     proxyRes.on('end', function () {
-        const istext = typeis(proxyRes, ['text/*']);
-        const url = req.url.toLowerCase().trim();
-        if (!istext || isAdminPage(url) || isCSSOrJs(url)) {
-            console.log(`${url} 不处理`);
+        const isNeedChange = isNeedChangeContent(req, proxyRes);
+        if (!isNeedChange) {
             res.end(body);
             return;
         }
@@ -385,8 +401,7 @@ function onProxyRes(proxyRes, req, res) {
             res.end(body);
             return;
         }
-
-        console.log(`${url} 要处理文本内容`);
+        console.log(`${req.url} 要处理文本内容`);
         body = body.toString();
         const output = processHtml({
             request: req,

@@ -227,8 +227,8 @@ function isJs(urlObj) {
     return urlObj.pathname.endsWith('.js');
 }
 
-function isCSSOrJs(url) {
-    const urlObj = url.parse(url);
+function isCSSOrJs(pageUrl) {
+    const urlObj = url.parse(pageUrl);
     return isCss(urlObj) || isJs(urlObj);
 }
 

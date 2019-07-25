@@ -368,13 +368,7 @@ async function writeStaticHtml (proxyRes, req, html) {
  * @param {*} res 
  */
 function onProxyRes(proxyRes, req, res) {
-    // res.proxyRes = proxyRes;
-    const url = req.url.toLowerCase().trim();
     console.log(`proxyRes.statusCode: ${proxyRes.statusCode}, proxyRes => ${JSON.stringify(proxyRes.headers)}`);
-
-    // if (proxyRes.headers && proxyRes.headers['content-type']) {
-    //     res.setHeader('content-type', proxyRes.headers['content-type']);
-    // }
     // 保留statusCode
     res.statusCode = proxyRes.statusCode;
     // 保留header
@@ -384,7 +378,6 @@ function onProxyRes(proxyRes, req, res) {
             res.setHeader(header, proxyRes.headers[header]);
         }
     }    
-
     let body = new Buffer('');
     proxyRes.on('data', function (data) {
         body = Buffer.concat([body, data]);
@@ -438,12 +431,12 @@ function processHtml (opts) {
     let request = opts.request;
     let html = opts.html;
 
-    html = html.replace(/http:\/\/www.360zhijia.com/gi, "https://www.a6se.com");
-    html = html.replace(/https:\/\/www.360zhijia.com/gi, "https://www.a6se.com");
-    html = html.replace(/http:\/\/www.360zhijia.cn/gi, "https:///www.a6se.com");
-    html = html.replace(/https:\/\/www.360zhijia.cn/gi, "https://www.a6se.com");
-    html = html.replace(/http:\/\/www.360zhijia.cn/gi, "https://www.a6se.com");
-    html = html.replace(/www.360zhijia.cn/gi, "www.a6se.com");
+    // html = html.replace(/http:\/\/www.360zhijia.com/gi, "https://www.a6se.com");
+    // html = html.replace(/https:\/\/www.360zhijia.com/gi, "https://www.a6se.com");
+    // html = html.replace(/http:\/\/www.360zhijia.cn/gi, "https:///www.a6se.com");
+    // html = html.replace(/https:\/\/www.360zhijia.cn/gi, "https://www.a6se.com");
+    // html = html.replace(/http:\/\/www.360zhijia.cn/gi, "https://www.a6se.com");
+    // html = html.replace(/www.360zhijia.cn/gi, "www.a6se.com");
     //先把所有的css都指向autoptimize_4038f49b0ca942d54e086868e610f7d6.css
     // html = html.replace(/(autoptimize_)\S+(\.css)/, `autoptimize_4038f49b0ca942d54e086868e610f7d6.css`);
 
